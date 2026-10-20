@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  scss:
+    name: compile every stylesheet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Compile
+        run: |
+          set -e
+          mkdir -p /tmp/scss-out
+          for file in aurora-dock/styles/*.scss; do
+            base="$(basename "$file" .scss)"
+            echo "compiling $file"
+            npx --yes sass@1.77.8 --no-source-map "$file" "/tmp/scss-out/$base.css"
+          done

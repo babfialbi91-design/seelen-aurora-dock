@@ -13,3 +13,12 @@
     scale: 0.96;
   }
 }
+
+@media (prefers-color-scheme: light) {
+  .quick-settings .radio-button {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.08);
+
+    &:hover { background-color: rgba(0, 0, 0, 0.1); }
+  }
+}

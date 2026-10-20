@@ -33,6 +33,81 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
   --system-accent-lighter-color: #ffffff;
 
   --ads-m: calc(var(--ads-motion, 100) / 100);
+
+  font-variant-numeric: tabular-nums;
+}
+
+// Mixed Arabic / Latin strings resolve their direction per line, while the
+// layout itself stays left-to-right (numbers and icons keep their order).
+body {
+  unicode-bidi: plaintext;
+}
+
+// Light glass, following the system colour scheme.
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+
+    --slu-std-bg-dark-color: rgba(255, 255, 255, 0.88);
+    --slu-std-bg-color: rgba(255, 255, 255, 0.74);
+    --slu-std-bg-light-color: rgba(0, 0, 0, 0.05);
+
+    --slu-std-fg-color: rgba(12, 12, 14, 0.92);
+    --slu-std-fg-secondary-color: rgba(12, 12, 14, 0.68);
+    --slu-std-fg-muted-color: rgba(12, 12, 14, 0.45);
+    --slu-std-fg-disabled-color: rgba(12, 12, 14, 0.3);
+
+    --slu-std-ui-color: #0b0b0d;
+    --slu-std-ui-fg-color: #ffffff;
+    --slu-std-ui-hover-color: #1c1c20;
+    --slu-std-ui-hover-overlay: rgba(0, 0, 0, 0.08);
+    --slu-std-ui-pressed-overlay: rgba(0, 0, 0, 0.14);
+    --slu-std-ui-selected-overlay: rgba(0, 0, 0, 0.06);
+
+    --system-accent-color: #0b0b0d;
+    --system-accent-dark-color: #0b0b0d;
+    --system-accent-light-color: #3a3a40;
+    --system-accent-darker-color: #000000;
+    --system-accent-lighter-color: #3a3a40;
+  }
+
+  .slu-std-popover {
+    background:
+      $ads-noise,
+      radial-gradient(150% 80% at 16% -12%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 60%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.7)),
+      rgba(255, 255, 255, 0.72) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(calc(var(--ads-blur, 22) * 1.3px)) saturate(1.1) brightness(1.06);
+    -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1.3px)) saturate(1.1) brightness(1.06);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 18px 44px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  input[type="range"][data-skin="flat"] {
+    background: rgba(0, 0, 0, 0.12);
+
+    &::-webkit-slider-thumb {
+      box-shadow: -100vw 0 0 100vw rgba(12, 12, 14, 0.85);
+    }
+
+    &[data-orientation="vertical"]::-webkit-slider-thumb {
+      box-shadow: 0 100vh 0 100vh rgba(12, 12, 14, 0.85);
+    }
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.22);
+
+    &:hover { background-color: rgba(0, 0, 0, 0.34); }
+    &:active { background-color: rgba(0, 0, 0, 0.45); }
+  }
+
+  ::selection {
+    background: rgba(0, 0, 0, 0.14);
+  }
 }
 
 // Standard popup shell shared by Seelen's bundled popups.
