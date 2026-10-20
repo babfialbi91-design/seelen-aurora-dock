@@ -1,0 +1,31 @@
+id: "@asfkep/system-stats"
+
+metadata:
+  displayName:
+    en: System Stats
+    ar: إحصائيات النظام
+  description:
+    en: Live CPU, RAM, disk and battery usage right inside the toolbar. Left-click opens Task Manager.
+    ar: استهلاك المعالج والذاكرة والقرص والبطارية مباشرة داخل شريط الأدوات. بالنقر الأيسر يفتح مدير المهام.
+  tags:
+    - system
+    - monitoring
+    - toolbar
+    - stats
+
+icon: PiGauge
+
+target: "@seelen/fancy-toolbar"
+
+plugin:
+  scopes:
+    - Cpu
+    - Memory
+    - Disk
+    - Power
+  template: !include plugin/template.js
+  tooltip: !include plugin/tooltip.js
+  onClickV2: open("C:\\Windows\\System32\\Taskmgr.exe")
+  style:
+    margin-left: 6px
+    margin-right: 6px

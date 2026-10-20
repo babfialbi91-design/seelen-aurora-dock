@@ -1,0 +1,32 @@
+@import "./mono.scss";
+
+// The switcher window is opaque, so we paint an intentional dim veil
+// (very dark charcoal + soft top highlight) instead of a dead black wall.
+body {
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 55%),
+    radial-gradient(100% 100% at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.55) 100%),
+    #08080a !important;
+}
+
+.task-switcher {
+  background:
+    radial-gradient(150% 80% at 16% -12%, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 60%),
+    rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: calc(var(--ads-radius, 24) * 0.9px) !important;
+  backdrop-filter: blur(calc(var(--ads-blur, 22) * 1.2px)) saturate(1.2) brightness(0.75);
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1.2px)) saturate(1.2) brightness(0.75);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 24px 60px rgba(0, 0, 0, 0.7) !important;
+
+  .task {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:focus {
+      outline: 2px solid rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+}

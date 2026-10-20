@@ -1,0 +1,181 @@
+{
+  "activeIconPacks": [
+    "@system/icon-pack",
+    "@user/custom-icons"
+  ],
+  "activeThemes": [
+    "@default/theme",
+    "@asfkep/stats-theme",
+    "@asfkep/aurora-dock"
+  ],
+  "backupSyncEnabled": true,
+  "byTheme": {
+    "54d0f261-68b9-46cf-b92f-5612e1d2bb7a": {
+      "--wp-blur-transition": "900"
+    },
+    "@asfkep/aurora-dock": {
+      "--ads-accent-1": "#00ddff",
+      "--ads-accent-2": "#8400ff",
+      "--ads-accent-3": "#ff0084",
+      "--ads-panel": "#000f3de6"
+    },
+    "@asfkep/stats-theme": {
+      "--stats-accent-1": "#000000",
+      "--stats-accent-2": "#000000"
+    }
+  },
+  "byWallpaper": {
+    "1edf1b15-e66a-42e6-b64c-daff1b43a6bf": {
+      "blur": 0,
+      "contrast": 1.0,
+      "flipHorizontal": false,
+      "flipVertical": false,
+      "muted": true,
+      "objectFit": "cover",
+      "objectPosition": "center",
+      "overlayColor": "#beb8b8",
+      "overlayMixBlendMode": "multiply",
+      "playbackSpeed": "x1",
+      "saturation": 1.0,
+      "withOverlay": false
+    }
+  },
+  "byWidget": {
+    "3b2aaa5a-fdce-4f1a-b40c-4afc9395a675": {
+      "enabled": true
+    },
+    "7afd5429-2c25-4994-a9d0-6ab588a1c4fc": {
+      "enabled": false
+    },
+    "@seelen/fancy-toolbar": {
+      "$shortcuts": null,
+      "delayToHide": 800,
+      "delayToShow": 100,
+      "enabled": true,
+      "hideMode": "Never",
+      "itemSize": 16,
+      "margin": 8,
+      "padding": 8,
+      "position": "Top"
+    },
+    "@seelen/flyouts": {
+      "enabled": true,
+      "placement": "bottom-left"
+    },
+    "@seelen/wallpaper-manager": {
+      "$shortcuts": null,
+      "coveragePauseThreshold": 1.0,
+      "defaultCollection": "2adc356f-5503-47c2-b451-faf251cb589d",
+      "deprecatedBgs": null,
+      "enabled": true,
+      "interval": 300,
+      "multimonitorBehaviour": "PerMonitor",
+      "randomize": false,
+      "useAccentColor": false
+    },
+    "@seelen/weg": {
+      "$shortcuts": null,
+      "delayToHide": 800,
+      "delayToShow": 100,
+      "enabled": true,
+      "hideMode": "OnOverlap",
+      "margin": 8,
+      "middleClickAction": "OpenNewInstance",
+      "mode": "MinContent",
+      "padding": 8,
+      "pinnedItemsVisibility": "Always",
+      "position": "Bottom",
+      "revealOnAttention": "UntilActivated",
+      "showEndTask": false,
+      "showInstanceCounter": true,
+      "showWindowTitle": false,
+      "size": 40,
+      "spaceBetweenItems": 8,
+      "splitWindows": false,
+      "temporalItemsVisibility": "All"
+    },
+    "@seelen/window-manager": {
+      "$shortcuts": null,
+      "animations": {
+        "durationMs": 200,
+        "easeFunction": "EaseOut",
+        "enabled": true
+      },
+      "autoStackingByCategory": true,
+      "border": {
+        "enabled": true,
+        "offset": 0.0,
+        "width": 3.0
+      },
+      "defaultLayout": "@default/wm-bspwm",
+      "dragBehavior": "Sort",
+      "enabled": false,
+      "floating": {
+        "height": 500.0,
+        "width": 800.0
+      },
+      "resizeDelta": 10.0,
+      "stackBarVisibility": "AsNeeded",
+      "workspaceGap": 10,
+      "workspaceMargin": {
+        "bottom": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0
+      },
+      "workspacePadding": 10
+    },
+    "ca4e2ea0-477e-457e-a8ac-d347a06cf0e6": {
+      "enabled": false
+    },
+    "caa04d79-0360-4ee6-aa44-686a8a535cd0": {
+      "enabled": true
+    }
+  },
+  "dateFormat": "ddd D MMM, hh:mm A",
+  "devTools": true,
+  "drpc": false,
+  "hardwareAcceleration": true,
+  "language": "en",
+  "monitorsV3": {
+    "HWP2676CNK6520PWZ_34_07D6_39": {
+      "byWidget": {},
+      "byWorkspace": {},
+      "wallpaperCollection": null
+    },
+    "NOEDID_1002_1638_00000008_00000000_100": {
+      "byWidget": {},
+      "byWorkspace": {
+        "e480d5b8-89be-4e65-8ae4-82c42dc931b9": {
+          "wallpaperCollection": "2adc356f-5503-47c2-b451-faf251cb589d"
+        }
+      },
+      "wallpaperCollection": null
+    }
+  },
+  "oldActiveThemes": [],
+  "performanceMode": {
+    "default": "Disabled",
+    "onBattery": "Minimal",
+    "onEnergySaver": "Extreme"
+  },
+  "pollingInterval": 3,
+  "startOfWeek": "Monday",
+  "streamingMode": false,
+  "suspendOnGameMode": false,
+  "unlockShortcuts": false,
+  "unstableOptimizations": false,
+  "updater": {
+    "channel": "Release"
+  },
+  "wallpaperCollections": [
+    {
+      "hidden": true,
+      "id": "2adc356f-5503-47c2-b451-faf251cb589d",
+      "name": "-",
+      "wallpapers": [
+        "eb750918-ab7e-4850-864d-2f7b8008311e"
+      ]
+    }
+  ]
+}

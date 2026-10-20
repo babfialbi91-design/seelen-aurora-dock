@@ -1,0 +1,520 @@
+// @asfkep/aurora-dock
+// Monochrome black-glass taskbar: transparent + black, white highlights only.
+// Structure follows Seelen 2.8's real WEG DOM so mounting/unmounting/hover/clicks
+// keep working. Motion is limited to a slow white shine + the magnify wave.
+
+$wave-ease: cubic-bezier(0.25, 1, 0.5, 1);
+
+:root {
+  font-family: "Inter", "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
+}
+
+@property --ads-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+// ---------------------------------------------------------------- panel -----
+.taskbar {
+  --ads-target: max(var(--config-item-size), var(--ads-zoom-size, 84px));
+  --ads-range: calc(var(--ads-target) - var(--config-item-size));
+  --ads-dur: calc(var(--ads-wave-duration, 160) * 1ms);
+  --ads-m: calc(var(--ads-motion, 100) / 100);
+
+  isolation: isolate;
+  overflow: visible !important;
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: calc(var(--ads-radius, 24) * 1px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
+    rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
+  backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) brightness(0.82);
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) brightness(0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -18px 32px rgba(0, 0, 0, 0.6),
+    0 0 calc(8px + var(--ads-glow, 58) * 0.2px) rgba(255, 255, 255, 0.12),
+    0 16px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+// Soft white bloom behind the bar + a slow "aurora" light drifting across it.
+.taskbar::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0) 28%,
+      rgba(255, 255, 255, 0.15) 46%,
+      rgba(255, 255, 255, 0.06) 53%,
+      rgba(255, 255, 255, 0) 72%
+    ),
+    radial-gradient(80% 170% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%);
+  background-size:
+    260% 100%,
+    100% 100%;
+  background-repeat: no-repeat, no-repeat;
+  background-position:
+    220% 0,
+    50% 0;
+  filter: blur(calc(6px + var(--ads-glow, 58) * 0.08px));
+  opacity: calc(var(--ads-glow, 58) / 100 * 0.62 * var(--ads-m));
+  animation: ads-aurora calc(var(--ads-speed, 14) * 1.6s) ease-in-out infinite;
+}
+
+@keyframes ads-aurora {
+  from { background-position: 220% 0, 50% 0; }
+  to { background-position: -120% 0, 50% 0; }
+}
+
+// A single white shine orbiting the bar edge.
+.taskbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--ads-m);
+  background: conic-gradient(
+    from var(--ads-angle),
+    rgba(255, 255, 255, 0) 0deg,
+    rgba(255, 255, 255, 0) 296deg,
+    rgba(255, 255, 255, 0.75) 340deg,
+    rgba(255, 255, 255, 1) 352deg,
+    rgba(255, 255, 255, 0) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: ads-spin calc(var(--ads-speed, 14) * 1s) linear infinite;
+}
+
+@keyframes ads-spin {
+  to { --ads-angle: 360deg; }
+}
+
+.taskbar.horizontal {
+  height: calc(var(--config-item-size) + var(--config-padding) * 2) !important;
+}
+.taskbar.vertical {
+  width: calc(var(--config-item-size) + var(--config-padding) * 2) !important;
+}
+
+.taskbar > .weg-items-container {
+  overflow: visible !important;
+  border-radius: inherit !important;
+}
+
+// ------------------------------------------------ alignment anchoring -------
+// Grow magnified icons outward, toward the screen centre.
+.taskbar.bottom :is(.weg-items-container, .weg-items) {
+  align-items: flex-end !important;
+}
+.taskbar.bottom :is(.weg-items-left, .weg-items-center, .weg-items-right, .weg-item-drag-container, .weg-item-overlay) {
+  align-self: flex-end !important;
+  align-items: flex-end !important;
+}
+.taskbar.bottom .weg-item {
+  align-self: flex-end !important;
+  transform-origin: bottom center !important;
+}
+
+.taskbar.top :is(.weg-items-container, .weg-items),
+.taskbar.left :is(.weg-items-container, .weg-items) {
+  align-items: flex-start !important;
+}
+.taskbar.top :is(.weg-items-left, .weg-items-center, .weg-items-right, .weg-item-drag-container, .weg-item-overlay),
+.taskbar.left :is(.weg-items-left, .weg-items-center, .weg-items-right, .weg-item-drag-container, .weg-item-overlay) {
+  align-self: flex-start !important;
+  align-items: flex-start !important;
+}
+.taskbar.top .weg-item {
+  align-self: flex-start !important;
+  transform-origin: top center !important;
+}
+.taskbar.left .weg-item {
+  align-self: flex-start !important;
+  transform-origin: center left !important;
+}
+
+.taskbar.right :is(.weg-items-container, .weg-items) {
+  align-items: flex-end !important;
+}
+.taskbar.right :is(.weg-items-left, .weg-items-center, .weg-items-right, .weg-item-drag-container, .weg-item-overlay) {
+  align-self: flex-end !important;
+  align-items: flex-end !important;
+}
+.taskbar.right .weg-item {
+  align-self: flex-end !important;
+  transform-origin: center right !important;
+}
+
+// ------------------------------------------------------------- structure ----
+.weg-item-drag-container {
+  --ads-factor: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: inherit;
+}
+
+.weg-item-drag-container > .weg-item-overlay {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  width: fit-content;
+  height: fit-content;
+  justify-content: center;
+  align-items: inherit;
+}
+
+// Enlarged hitbox so the hover wave carries across the gap without flicker.
+// NOTE: no z-index here, otherwise it would sit over the tile and block clicks.
+.weg-item-drag-container::before {
+  content: "";
+  position: absolute;
+}
+.horizontal .weg-item-drag-container::before {
+  left: 50%;
+  width: calc(100% + var(--config-space-between-items));
+  height: calc(100% + var(--config-padding) + var(--config-margin));
+  transform: translateX(-50%);
+}
+.vertical .weg-item-drag-container::before {
+  top: 50%;
+  width: calc(100% + var(--config-padding) + var(--config-margin));
+  height: calc(100% + var(--config-space-between-items));
+  transform: translateY(-50%);
+}
+.bottom .weg-item-drag-container::before { top: 0; }
+.top .weg-item-drag-container::before { bottom: 0; }
+.left .weg-item-drag-container::before { right: 0; }
+.right .weg-item-drag-container::before { left: 0; }
+
+// ---------------------------------------------------------------- tiles -----
+.weg-item:has(> .weg-item-icon) {
+  padding: 10% !important;
+}
+
+.weg-item {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: clamp(
+    calc(var(--config-item-size) * 0.25),
+    calc(var(--ads-item-size, var(--config-item-size)) * 0.24),
+    calc(var(--ads-radius, 24) * 1px)
+  ) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.35),
+    0 3px 10px rgba(0, 0, 0, 0.3) !important;
+  transition:
+    width var(--ads-dur) $wave-ease,
+    height var(--ads-dur) $wave-ease,
+    border-radius var(--ads-dur) $wave-ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease !important;
+}
+
+// Strict monochrome: the whole tile is grayscale, so only the app icon (the one
+// coloured thing inside) is affected. Colour returns on hover / focus.
+.weg-item:not(.media-session-container) {
+  filter: grayscale(1) !important;
+}
+
+.weg-item:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    0 0 calc(10px + var(--ads-glow, 58) * 0.16px) rgba(255, 255, 255, 0.5) !important;
+}
+
+.weg-item:has(:focus-visible) {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  filter: grayscale(1) brightness(1.12) !important;
+}
+
+.weg-item:active {
+  filter: grayscale(1) brightness(1.16) !important;
+}
+
+// Wave sizing: the tile size is driven by --ads-factor set on the container.
+.weg-item-drag-container > .weg-item:not(.media-session-container),
+.weg-item-drag-container > .weg-item-overlay > .weg-item:not(.media-session-container) {
+  box-sizing: border-box;
+  --ads-item-size: calc(var(--config-item-size) + var(--ads-range) * var(--ads-factor));
+  width: var(--ads-item-size);
+  height: var(--ads-item-size);
+}
+
+// ------------------------------------------------------------ the wave ------
+.weg-item-drag-container:hover {
+  --ads-factor: 1;
+  z-index: 5;
+}
+
+.weg-item-drag-container:has(+ .weg-item-drag-container:hover),
+.weg-item-drag-container:hover + .weg-item-drag-container {
+  --ads-factor: 0.7;
+  z-index: 4;
+}
+
+.weg-item-drag-container:has(+ .weg-item-drag-container + .weg-item-drag-container:hover),
+.weg-item-drag-container:hover + .weg-item-drag-container + .weg-item-drag-container {
+  --ads-factor: 0.3;
+  z-index: 3;
+}
+
+// Bridge across a separator slot.
+.weg-item-drag-container:has(+ .weg-item-drag-container:has(.weg-separator) + .weg-item-drag-container:hover),
+.weg-item-drag-container:hover + .weg-item-drag-container:has(.weg-separator) + .weg-item-drag-container {
+  --ads-factor: 0.6;
+  z-index: 4;
+}
+.weg-item-drag-container:has(+ .weg-item-drag-container + .weg-item-drag-container:has(.weg-separator) + .weg-item-drag-container:hover),
+.weg-item-drag-container:hover + .weg-item-drag-container:has(.weg-separator) + .weg-item-drag-container + .weg-item-drag-container {
+  --ads-factor: 0.3;
+  z-index: 3;
+}
+
+// ------------------------------------------ open / minimize (vacuum) --------
+// On open the tile erupts up out of its slot; when minimized/closed it is
+// squeezed and sucked down into the dock like a vacuum.
+.taskbar .weg-item-drag-container:is([data-mounting], [data-unmounting]) :is(.weg-item-overlay, .weg-item:not(.media-session-container)) {
+  align-self: center !important;
+  align-items: center !important;
+}
+
+.taskbar .weg-item-drag-container[data-mounting] > .weg-item-overlay > .weg-item:has(> .weg-item-icon) {
+  transform-origin: center bottom !important;
+  animation: ads-erupt 460ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  transition:
+    width 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    padding 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms ease-out !important;
+}
+
+@starting-style {
+  .taskbar .weg-item-drag-container[data-mounting] > .weg-item-overlay > .weg-item:has(> .weg-item-icon) {
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    opacity: 0 !important;
+  }
+}
+
+@keyframes ads-erupt {
+  0%   { transform: translateY(72%) scale(0.3, 0.45); }
+  58%  { transform: translateY(-7%) scale(1.05, 1.03); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.taskbar .weg-item-drag-container[data-unmounting] > .weg-item-overlay > .weg-item:has(> .weg-item-icon) {
+  transform-origin: center bottom !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  animation: ads-vacuum 340ms cubic-bezier(0.55, 0, 0.9, 0.45) both !important;
+  transition:
+    width 220ms ease-in 60ms,
+    height 220ms ease-in 60ms,
+    padding 220ms ease-in 60ms,
+    border-radius 220ms ease-in 60ms !important;
+}
+
+@keyframes ads-vacuum {
+  0%   { transform: translateY(0) scale(1, 1); opacity: 1; filter: blur(0); }
+  30%  { transform: translateY(5%) scale(1.16, 0.84); opacity: 1; filter: blur(0); }
+  100% { transform: translateY(88%) scale(0.05, 0.05); opacity: 0; filter: blur(2.5px); }
+}
+
+.taskbar .weg-item-drag-container[data-unmounting] .weg-item-open-sign {
+  opacity: 0 !important;
+  transition: opacity 170ms ease-in !important;
+}
+
+// ----------------------------------------------------- running state --------
+.weg-item-open-sign {
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    width 220ms $wave-ease,
+    height 220ms $wave-ease !important;
+}
+.weg-item-open-sign-active {
+  opacity: 1 !important;
+}
+.weg-item-open-sign-focused {
+  background: #fff !important;
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.95),
+    0 0 16px rgba(255, 255, 255, 0.6) !important;
+  border-radius: 999px !important;
+}
+.weg-item-open-sign-attention {
+  background: #fff !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9) !important;
+}
+
+.weg-item-drag-container:has(.weg-item-open-sign-focused):not(:hover) :is(.weg-item-icon, .weg-item-canvas) {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
+}
+
+// White, glowing count badges.
+.weg-item-badge,
+.weg-item-instance-counter-badge,
+.weg-item-notification-badge {
+  color: #050505 !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  background: #fff !important;
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.95),
+    0 0 18px rgba(255, 255, 255, 0.55) !important;
+}
+.weg-item-badge:has(img) {
+  background: transparent !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7) !important;
+}
+
+// --------------------------------------------------------- previews ---------
+.weg-item-preview-container {
+  background: rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100 + 0.18)) !important;
+  backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: calc(var(--ads-radius, 24) * 1px) !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6) !important;
+}
+.weg-item-preview {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-radius: calc(var(--ads-radius, 24) * 0.6px) !important;
+}
+.weg-item-preview:hover {
+  background: rgba(255, 255, 255, 0.13) !important;
+}
+
+// ------------------------------------------------- living highlights --------
+.weg-item:not(.media-session-container) :is(.weg-item-icon, .weg-item-canvas) {
+  transition:
+    transform 260ms $wave-ease,
+    filter 220ms ease;
+}
+
+// Colour returns while the tile is hovered or keyboard-focused.
+.weg-item-drag-container:hover .weg-item:not(.media-session-container),
+.weg-item-drag-container:has(:focus-visible) .weg-item:not(.media-session-container) {
+  filter: grayscale(0) !important;
+}
+
+// A slight 3D lift for the icon under the cursor / keyboard focus.
+.weg-item-drag-container:hover .weg-item:not(.media-session-container) :is(.weg-item-icon, .weg-item-canvas),
+.weg-item-drag-container:has(:focus-visible) .weg-item:not(.media-session-container) :is(.weg-item-icon, .weg-item-canvas) {
+  transform: perspective(600px) translateY(calc(-4% * var(--ads-m, 1)))
+    scale(calc(1 + 0.07 * var(--ads-m, 1))) rotateX(calc(6deg * var(--ads-m, 1)));
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 9px rgba(255, 255, 255, 0.45));
+}
+
+// Gentle breathing on the focused-app indicator and the glowing count badges.
+@keyframes ads-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, calc(0.85 * var(--ads-m, 1))),
+      0 0 14px rgba(255, 255, 255, calc(0.5 * var(--ads-m, 1)));
+  }
+  50% {
+    box-shadow: 0 0 13px rgba(255, 255, 255, var(--ads-m, 1)),
+      0 0 26px rgba(255, 255, 255, calc(0.8 * var(--ads-m, 1)));
+  }
+}
+
+.weg-item-open-sign-focused {
+  animation: ads-breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes ads-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, calc(0.9 * var(--ads-m, 1))),
+      0 0 18px rgba(255, 255, 255, calc(0.5 * var(--ads-m, 1)));
+  }
+  50% {
+    box-shadow: 0 0 13px rgba(255, 255, 255, var(--ads-m, 1)),
+      0 0 30px rgba(255, 255, 255, calc(0.78 * var(--ads-m, 1)));
+  }
+}
+
+.weg-item-badge,
+.weg-item-instance-counter-badge,
+.weg-item-notification-badge {
+  animation: ads-badge-pulse 2.8s ease-in-out infinite;
+}
+
+// ------------------------------------------------------ media session ------
+// The media player is the only temporal item; keep it black glass too.
+.weg-item.media-session-container,
+.weg-item.media-session-container .media-session {
+  background: rgba(9, 9, 11, 0.68) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 14px 34px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(1.05) !important;
+}
+
+.weg-item.media-session-container * {
+  color: #f2f2f5 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.weg-item.media-session-container button {
+  background: transparent !important;
+  border-radius: 10px !important;
+  transition: background 160ms ease;
+}
+
+.weg-item.media-session-container button:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
+// ------------------------------------------------ accessibility -------------
+@media (prefers-reduced-motion: reduce) {
+  .taskbar::after,
+  .taskbar::before { animation: none !important; }
+  .weg-item-open-sign-focused,
+  .weg-item-badge,
+  .weg-item-instance-counter-badge,
+  .weg-item-notification-badge { animation: none !important; }
+  .weg-item-drag-container:hover .weg-item-icon,
+  .weg-item-drag-container:has(:focus-visible) .weg-item-icon { transform: none !important; }
+  .taskbar .weg-item-drag-container:is([data-mounting], [data-unmounting]) > .weg-item-overlay > .weg-item:has(> .weg-item-icon) {
+    transform: none !important;
+    filter: none !important;
+  }
+}

@@ -1,0 +1,51 @@
+id: "@asfkep/stats-theme"
+
+metadata:
+  displayName:
+    en: Stats Accent
+    ar: لمسة الإحصائيات
+  description:
+    en: Animated glass pill with a rotating glow halo, pulsing live dot and shimmering content for the System Stats toolbar item.
+    ar: حبة زجاجية متحركة بهالة دوّارة، نقطة حيّة نابضة، ومحتوى بلمعان لعنصر إحصائيات النظام في شريط الأدوات.
+  tags:
+    - toolbar
+    - animation
+    - glass
+    - accent
+
+styles:
+  "@seelen/fancy-toolbar": !include styles/toolbar.scss
+
+settings:
+  - group:
+      header: Stats item
+      items:
+        - syntax: <color>
+          name: --stats-accent-1
+          label: Accent (primary)
+          initialValue: "#6ee7ff"
+        - syntax: <color>
+          name: --stats-accent-2
+          label: Accent (secondary)
+          initialValue: "#a78bfa"
+        - syntax: <number>
+          name: --stats-radius
+          label: Corner radius
+          initialValue: 12
+          min: 0
+          max: 24
+          step: 1
+        - syntax: <number>
+          name: --stats-glow
+          label: Glow intensity
+          initialValue: 55
+          min: 0
+          max: 100
+          step: 5
+        - syntax: <number>
+          name: --stats-speed
+          label: Animation speed (seconds)
+          initialValue: 9
+          min: 3
+          max: 30
+          step: 1

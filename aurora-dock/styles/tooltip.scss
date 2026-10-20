@@ -1,0 +1,9 @@
+@import "./mono.scss";
+
+.tooltip {
+  max-width: 460px;
+  padding: 6px 10px;
+  color: var(--slu-std-fg-color);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}

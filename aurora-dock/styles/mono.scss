@@ -1,0 +1,118 @@
+// @asfkep/aurora-dock — shared monochrome black-glass skin.
+// Imported by the individual widget styles. It only redefines Seelen's standard
+// tokens + the standard popover shell, so every bundled popup inherits the same
+// look without re-implementing its layout.
+
+:root {
+  color-scheme: dark;
+  font-family: "Inter", "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
+
+  --slu-std-bg-dark-color: rgba(0, 0, 0, 0.72);
+  --slu-std-bg-color: rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100));
+  --slu-std-bg-light-color: rgba(255, 255, 255, 0.07);
+
+  --slu-std-fg-color: rgba(255, 255, 255, 0.94);
+  --slu-std-fg-secondary-color: rgba(255, 255, 255, 0.72);
+  --slu-std-fg-muted-color: rgba(255, 255, 255, 0.45);
+  --slu-std-fg-disabled-color: rgba(255, 255, 255, 0.3);
+
+  --slu-std-ui-color: #ffffff;
+  --slu-std-ui-fg-color: #050505;
+  --slu-std-ui-hover-color: #e8e8e8;
+  --slu-std-ui-hover-overlay: rgba(255, 255, 255, 0.16);
+  --slu-std-ui-pressed-overlay: rgba(255, 255, 255, 0.24);
+  --slu-std-ui-selected-overlay: rgba(255, 255, 255, 0.1);
+
+  --system-accent-color: #ffffff;
+  --system-accent-dark-color: #ffffff;
+  --system-accent-light-color: #ffffff;
+  --system-accent-darker-color: #e8e8e8;
+  --system-accent-lighter-color: #ffffff;
+
+  --ads-m: calc(var(--ads-motion, 100) / 100);
+}
+
+// Standard popup shell shared by Seelen's bundled popups.
+.slu-std-popover {
+  color: var(--slu-std-fg-color);
+  background:
+    radial-gradient(150% 80% at 16% -12%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.24)),
+    rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: calc(var(--ads-radius, 24) * 0.72px) !important;
+  backdrop-filter: blur(calc(var(--ads-blur, 22) * 1.3px)) saturate(1.2) brightness(0.76);
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1.3px)) saturate(1.2) brightness(0.76);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -20px 40px rgba(0, 0, 0, 0.4),
+    0 20px 50px rgba(0, 0, 0, 0.66) !important;
+}
+
+// White slider fills (default uses --slu-std-ui-color for the fill shadow).
+input[type="range"][data-skin="flat"] {
+  background: rgba(255, 255, 255, 0.14);
+
+  &::-webkit-slider-thumb {
+    box-shadow: -100vw 0 0 100vw rgba(255, 255, 255, 0.92);
+  }
+
+  &[data-orientation="vertical"]::-webkit-slider-thumb {
+    box-shadow: 0 100vh 0 100vh rgba(255, 255, 255, 0.92);
+  }
+}
+
+// White scrollbars to match the monochrome surface.
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.45);
+  }
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+// Soft pop-in for every popup. It animates the standalone `translate`/`scale`
+// properties (not `transform`), so it can never fight Seelen's own positioning.
+:root:has(.slu-std-popover) {
+  transition:
+    opacity 170ms ease-out,
+    translate 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    scale 220ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  &[data-widget-hidden] {
+    opacity: 0;
+    translate: 0 calc(6px * var(--ads-m));
+    scale: calc(1 - 0.02 * var(--ads-m));
+  }
+}
+
+.slu-std-popover {
+  transition:
+    opacity 160ms ease-out,
+    scale 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@starting-style {
+  .slu-std-popover {
+    opacity: 0;
+    scale: calc(1 - 0.04 * var(--ads-m));
+    translate: 0 calc(6px * var(--ads-m));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:has(.slu-std-popover),
+  .slu-std-popover {
+    transition: none !important;
+  }
+}

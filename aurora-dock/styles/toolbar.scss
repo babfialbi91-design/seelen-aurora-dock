@@ -1,0 +1,180 @@
+// @asfkep/aurora-dock — top bar (fancy-toolbar)
+// Monochrome black glass: transparent + black, white highlights only.
+
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+:root {
+  font-family: "Inter", "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
+}
+
+@property --ads-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.ft-bar {
+  position: relative;
+  isolation: isolate;
+  overflow: visible !important;
+  --ads-m: calc(var(--ads-motion, 100) / 100);
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)),
+    rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
+  backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) brightness(0.82);
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) brightness(0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -14px 26px rgba(0, 0, 0, 0.55),
+    0 12px 30px rgba(0, 0, 0, 0.58) !important;
+}
+
+.ft-bar[data-has-margin="true"] {
+  border-radius: calc((var(--config-item-size) + var(--config-padding) * 2) * 0.35) !important;
+}
+
+// A single white shine orbiting the bar edge.
+.ft-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-sizing: border-box;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--ads-m);
+  background: conic-gradient(
+    from var(--ads-angle),
+    rgba(255, 255, 255, 0) 0deg,
+    rgba(255, 255, 255, 0) 296deg,
+    rgba(255, 255, 255, 0.75) 340deg,
+    rgba(255, 255, 255, 1) 352deg,
+    rgba(255, 255, 255, 0) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: ft-ring calc(var(--ads-speed, 14) * 1s) linear infinite;
+}
+
+@keyframes ft-ring {
+  to { --ads-angle: 360deg; }
+}
+
+// ------------------------------------------------------------- items --------
+.ft-bar-item {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.ft-bar-item-clickable {
+  border-radius: 10px !important;
+  transition:
+    background 160ms ease,
+    box-shadow 200ms ease,
+    transform 200ms $ease !important;
+}
+
+.ft-bar-item-clickable:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 calc(6px + var(--ads-glow, 58) * 0.16px) rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+.ft-bar-item-clickable:active {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(0) scale(0.96);
+}
+
+.ft-bar-item-content img,
+.ft-bar-item-content .slu-icon {
+  border-radius: 8px !important;
+  filter: grayscale(1) contrast(1.04);
+  transition: transform 220ms $ease, filter 220ms ease;
+}
+
+.ft-bar-item-clickable:hover .ft-bar-item-content img,
+.ft-bar-item-clickable:hover .ft-bar-item-content .slu-icon {
+  transform: scale(calc(1 + 0.12 * var(--ads-m, 1)));
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+}
+
+.ft-bar-item-badge {
+  background: #fff !important;
+  color: #050505 !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.95),
+    0 0 16px rgba(255, 255, 255, 0.55) !important;
+  animation: ft-badge-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes ft-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, calc(0.95 * var(--ads-m, 1))),
+      0 0 16px rgba(255, 255, 255, calc(0.55 * var(--ads-m, 1)));
+  }
+  50% {
+    box-shadow: 0 0 13px rgba(255, 255, 255, var(--ads-m, 1)),
+      0 0 26px rgba(255, 255, 255, calc(0.8 * var(--ads-m, 1)));
+  }
+}
+
+// A soft white sheen sweeping across the bar every now and then.
+.ft-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.13) 48%,
+    rgba(255, 255, 255, 0.04) 54%,
+    rgba(255, 255, 255, 0) 66%
+  );
+  background-size: 240% 100%;
+  background-repeat: no-repeat;
+  background-position: 220% 0;
+  opacity: var(--ads-m);
+  animation: ft-sheen calc(var(--ads-speed, 14) * 1.4s) ease-in-out infinite;
+}
+
+@keyframes ft-sheen {
+  from { background-position: 220% 0; }
+  to { background-position: -120% 0; }
+}
+
+.ft-corner-button {
+  border-radius: 10px !important;
+  transition: background 160ms ease, transform 200ms $ease !important;
+}
+
+.ft-corner-button:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+// -------------------------------------------------- accessibility -----------
+@media (prefers-reduced-motion: reduce) {
+  .ft-bar::before,
+  .ft-bar::after,
+  .ft-bar-item-badge { animation: none !important; }
+  .ft-bar-item-clickable,
+  .ft-corner-button,
+  .ft-bar-item-content img,
+  .ft-bar-item-content .slu-icon { transition: none !important; }
+}

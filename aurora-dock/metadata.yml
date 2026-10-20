@@ -1,0 +1,108 @@
+id: "@asfkep/aurora-dock"
+
+metadata:
+  displayName:
+    en: Aurora Dock
+    ar: دوك أورورا
+  description:
+    en: Monochrome black-glass taskbar. Transparent + black with white highlights, a macOS-style magnifying wave (icons grow and push apart) and a compete open/minimize "vacuum" motion. White glowing count badges. Tunable and motion-safe.
+    ar: شريط مهام زجاجي أسود أحادي اللون. شفاف وأسود مع لمحات بيضاء، وتكبير حقيقي للأيقونات عند المرور (تنمو وتتباعد مثل الماك)، وحركة فتح/تصغير "شفط". وشارات العدّ بيضاء متوهّجة. قابل للتخصيص ويراعي تقليل الحركة.
+  tags:
+    - dock
+    - taskbar
+    - glass
+    - monochrome
+    - black
+    - animation
+    - macos
+
+styles:
+  "@seelen/weg": !include styles/weg.scss
+  "@seelen/fancy-toolbar": !include styles/toolbar.scss
+  "@seelen/apps-menu": !include styles/apps-menu.scss
+  "@seelen/weg-preview": !include styles/preview.scss
+  "@seelen/system-tray": !include styles/tray-menu.scss
+  "@seelen/tooltip": !include styles/tooltip.scss
+  "@seelen/quick-settings": !include styles/quick-settings.scss
+  "@seelen/notifications": !include styles/notifications.scss
+  "@seelen/context-menu": !include styles/context-menu.scss
+  "@seelen/flyouts": !include styles/flyouts.scss
+  "@seelen/task-switcher": !include styles/task-switcher.scss
+  "@seelen/power-menu": !include styles/mono-widget.scss
+  "@seelen/bluetooth-popup": !include styles/mono-widget.scss
+  "@seelen/workspaces-viewer": !include styles/mono-widget.scss
+  "@seelen/keyboard-selector": !include styles/mono-widget.scss
+  "@seelen/user-menu": !include styles/mono-widget.scss
+  "@seelen/network-popup": !include styles/mono-widget.scss
+  "@seelen/calendar-popup": !include styles/mono-widget.scss
+  "@seelen/media-popup": !include styles/mono-widget.scss
+
+settings:
+  - group:
+      header: Glass
+      items:
+        - syntax: <number>
+          name: --ads-opacity
+          label: Panel opacity (%)
+          description: How opaque the black glass is. Lower = more transparent.
+          initialValue: 62
+          min: 10
+          max: 95
+          step: 2
+        - syntax: <number>
+          name: --ads-blur
+          label: Backdrop blur (px)
+          initialValue: 22
+          min: 0
+          max: 40
+          step: 2
+        - syntax: <number>
+          name: --ads-radius
+          label: Corner radius (px)
+          initialValue: 24
+          min: 0
+          max: 36
+          step: 1
+
+  - group:
+      header: Wave
+      items:
+        - syntax: <length-percentage>
+          name: --ads-zoom-size
+          label: Hovered icon size
+          description: Size of the icon under the cursor. Set equal to the dock item size to disable magnification.
+          initialValue: 84
+          initialValueUnit: px
+        - syntax: <number>
+          name: --ads-wave-duration
+          label: Wave transition (ms)
+          initialValue: 160
+          min: 60
+          max: 400
+          step: 10
+        - syntax: <number>
+          name: --ads-speed
+          label: Shine speed (s)
+          initialValue: 14
+          min: 6
+          max: 60
+          step: 2
+        - syntax: <number>
+          name: --ads-glow
+          label: White glow
+          initialValue: 58
+          min: 0
+          max: 100
+          step: 5
+
+  - group:
+      header: Motion
+      items:
+        - syntax: <number>
+          name: --ads-motion
+          label: Motion intensity (%)
+          description: Scales every decorative animation (aurora, shine, pulses, icon lift). Set to 0 to stop them all.
+          initialValue: 100
+          min: 0
+          max: 100
+          step: 5

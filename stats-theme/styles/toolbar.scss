@@ -1,0 +1,142 @@
+.ft-bar-item[id="@asfkep/system-stats"] {
+  --_a1: var(--stats-accent-1, #6ee7ff);
+  --_a2: var(--stats-accent-2, #a78bfa);
+
+  position: relative !important;
+  overflow: hidden !important;
+  padding: 2px 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: calc(var(--stats-radius, 12) * 1px) !important;
+  color: #eaf2ff !important;
+  font-variant-numeric: tabular-nums !important;
+  background: linear-gradient(
+    115deg,
+    rgba(12, 16, 26, 0.6),
+    rgba(24, 30, 52, 0.45) 45%,
+    rgba(12, 16, 26, 0.6)
+  ) !important;
+  background-size: 220% 220% !important;
+  backdrop-filter: blur(10px) saturate(1.6) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.6) !important;
+  animation:
+    ft-stats-flow calc(var(--stats-speed, 9) * 1s) ease-in-out infinite,
+    ft-stats-glow calc(var(--stats-speed, 9) * 1s) ease-in-out infinite !important;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 200ms ease,
+    filter 200ms ease !important;
+  will-change: transform, background-position, box-shadow;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"]::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: -25% !important;
+  z-index: 0 !important;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    color-mix(in srgb, var(--_a1) 65%, transparent) 22%,
+    transparent 42%,
+    color-mix(in srgb, var(--_a2) 65%, transparent) 66%,
+    transparent 86%
+  ) !important;
+  filter: blur(9px) !important;
+  opacity: calc(var(--stats-glow, 55) * 0.007) !important;
+  animation: ft-stats-spin calc(var(--stats-speed, 9) * 1.4s) linear infinite !important;
+  pointer-events: none !important;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"]::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 2 !important;
+  top: 3px !important;
+  right: 3px !important;
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  background: var(--_a1) !important;
+  box-shadow: 0 0 6px var(--_a1) !important;
+  animation: ft-stats-pulse 1.6s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"] > .ft-bar-item-content {
+  position: relative !important;
+  z-index: 1 !important;
+  gap: 4px !important;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"] > .ft-bar-item-content :is(img, .slu-icon, svg) {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--_a1) 70%, transparent)) !important;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"]:is(:hover, :focus, :focus-visible) {
+  transform: translateY(-1.5px) scale(1.06) !important;
+  border-color: color-mix(in srgb, var(--_a1) 65%, transparent) !important;
+  filter: brightness(1.12) saturate(1.15) !important;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"]:is(:hover, :focus, :focus-visible) > .ft-bar-item-content :is(img, .slu-icon, svg) {
+  transform: scale(1.12) rotate(-4deg) !important;
+}
+
+.ft-bar-item[id="@asfkep/system-stats"]:active {
+  transform: translateY(0) scale(0.97) !important;
+  filter: brightness(0.95) !important;
+}
+
+@keyframes ft-stats-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes ft-stats-glow {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 0 6px color-mix(in srgb, var(--_a1) 25%, transparent),
+      0 6px 18px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 0 16px color-mix(in srgb, var(--_a2) 55%, transparent),
+      0 8px 22px rgba(0, 0, 0, 0.34);
+  }
+}
+
+@keyframes ft-stats-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ft-stats-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-bar-item[id="@asfkep/system-stats"],
+  .ft-bar-item[id="@asfkep/system-stats"]::before,
+  .ft-bar-item[id="@asfkep/system-stats"]::after {
+    animation: none !important;
+  }
+}
