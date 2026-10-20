@@ -1,0 +1,264 @@
+@import "./mono.scss";
+
+// --------------------------------------------------------------- veil -------
+.workspaces-viewer {
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 55%),
+    radial-gradient(100% 100% at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.55) 100%),
+    #08080a !important;
+}
+
+.workspaces-viewer .monitor .active-wallpaper {
+  filter: blur(28px) saturate(0.5) brightness(0.4) !important;
+  opacity: 0.5;
+}
+
+// -------------------------------------------------------------- panel -------
+.workspaces {
+  border-radius: calc(var(--ads-radius, 24) * 1.05px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    $ads-noise,
+    radial-gradient(150% 80% at 16% -12%, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 60%),
+    rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
+  backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1.1px)) saturate(1.15) brightness(0.8);
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1.1px)) saturate(1.15) brightness(0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 24px 60px rgba(0, 0, 0, 0.6) !important;
+  animation: ads-ws-in calc(280ms * var(--ads-m)) cubic-bezier(0.22, 0.9, 0.24, 1) both;
+
+  // ------------------------------------------------------ workspace --------
+  .workspace {
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.09),
+      0 10px 26px rgba(0, 0, 0, 0.4) !important;
+    transition:
+      transform 240ms cubic-bezier(0.22, 0.9, 0.24, 1),
+      box-shadow 240ms ease,
+      background 200ms ease !important;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04)) !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 16px 36px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .workspace-header {
+      .workspace-name-input {
+        font-size: 0.84rem;
+        font-weight: 650;
+        color: rgba(255, 255, 255, 0.92);
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.35);
+        }
+      }
+    }
+
+    .workspace-preview {
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    &::before {
+      width: 34px;
+      height: 3px;
+      border-radius: 999px;
+      background-color: transparent;
+    }
+
+    &.workspace-active {
+      &::before {
+        background-color: #ffffff;
+        box-shadow:
+          0 0 8px rgba(255, 255, 255, 0.9),
+          0 0 18px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    &.workspace-viewing {
+      transform: scale(1.02);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 18px 42px rgba(0, 0, 0, 0.55) !important;
+    }
+
+    &.workspace-drop-target {
+      outline: 2px dashed rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+    }
+  }
+
+  .add-workspace-column,
+  .add-workspace-row {
+    border-radius: 18px;
+    border: 1px dashed rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.03) !important;
+    box-shadow: none !important;
+    color: rgba(255, 255, 255, 0.55);
+    transition:
+      background 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+// ------------------------------------------------------- window cards -------
+.workspaces-viewer .window {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.4) !important;
+
+  .window-header {
+    padding: 6px 10px;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+
+    figure img,
+    figure .slu-icon {
+      filter: grayscale(1) contrast(1.05);
+    }
+
+    .window-title {
+      font-size: 0.8rem;
+      font-weight: 650;
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+@keyframes ads-ws-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspaces {
+    animation: none !important;
+  }
+  .workspace:hover,
+  .workspace.workspace-viewing {
+    transform: none !important;
+  }
+}
+
+// --------------------------------------------------------- light glass ------
+@media (prefers-color-scheme: light) {
+  .workspaces-viewer {
+    background:
+      radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 60%),
+      radial-gradient(100% 100% at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.12) 100%),
+      #e9e9ec !important;
+  }
+
+  .workspaces-viewer .monitor .active-wallpaper {
+    filter: blur(28px) saturate(0.4) brightness(1.4) !important;
+    opacity: 0.35;
+  }
+
+  .workspaces {
+    border-color: rgba(0, 0, 0, 0.1);
+    background:
+      $ads-noise,
+      radial-gradient(150% 80% at 16% -12%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0) 60%),
+      rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1.1px)) saturate(1.05) brightness(1.06);
+    -webkit-backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1.1px)) saturate(1.05) brightness(1.06);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+      inset 0 1px 0 rgba(255, 255, 255, 1),
+      0 24px 60px rgba(0, 0, 0, 0.16) !important;
+
+    .workspace {
+      border-color: rgba(0, 0, 0, 0.07);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.72)) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        0 10px 26px rgba(0, 0, 0, 0.1) !important;
+
+      .workspace-header .workspace-name-input {
+        color: rgba(12, 12, 14, 0.92);
+
+        &::placeholder {
+          color: rgba(12, 12, 14, 0.35);
+        }
+      }
+
+      &.workspace-active::before {
+        background-color: #0b0b0d;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+      }
+
+      &.workspace-viewing {
+        box-shadow:
+          inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 1),
+          0 18px 42px rgba(0, 0, 0, 0.16) !important;
+      }
+
+      &.workspace-drop-target {
+        outline-color: rgba(12, 12, 14, 0.45);
+      }
+    }
+
+    .add-workspace-column,
+    .add-workspace-row {
+      border-color: rgba(0, 0, 0, 0.14);
+      background: rgba(0, 0, 0, 0.03) !important;
+      color: rgba(12, 12, 14, 0.55);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.06) !important;
+        border-color: rgba(0, 0, 0, 0.28);
+        color: rgba(12, 12, 14, 0.9);
+      }
+    }
+  }
+
+  .workspaces-viewer .window {
+    border-color: rgba(0, 0, 0, 0.07);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.75)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 1),
+      0 10px 24px rgba(0, 0, 0, 0.1) !important;
+
+    .window-header {
+      border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+
+      figure img,
+      figure .slu-icon {
+        filter: grayscale(1) brightness(0.55) contrast(1.1);
+      }
+
+      .window-title {
+        color: rgba(12, 12, 14, 0.9);
+      }
+    }
+  }
+}

@@ -30,7 +30,7 @@ styles:
   "@seelen/task-switcher": !include styles/task-switcher.scss
   "@seelen/power-menu": !include styles/mono-widget.scss
   "@seelen/bluetooth-popup": !include styles/mono-widget.scss
-  "@seelen/workspaces-viewer": !include styles/mono-widget.scss
+  "@seelen/workspaces-viewer": !include styles/workspaces.scss
   "@seelen/keyboard-selector": !include styles/mono-widget.scss
   "@seelen/user-menu": !include styles/mono-widget.scss
   "@seelen/network-popup": !include styles/mono-widget.scss
@@ -102,6 +102,17 @@ settings:
           name: --ads-motion
           label: Motion intensity (%)
           description: Scales every decorative animation (aurora, shine, pulses, icon lift). Set to 0 to stop them all.
+          initialValue: 100
+          min: 0
+          max: 100
+          step: 5
+  - group:
+      header: Performance
+      items:
+        - syntax: <number>
+          name: --ads-fx
+          label: Effects budget (%)
+          description: Scales every backdrop blur. Set to 0 to drop blur entirely and save battery; decorative motion has its own slider under Motion.
           initialValue: 100
           min: 0
           max: 100

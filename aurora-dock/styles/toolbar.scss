@@ -27,8 +27,8 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
     $ads-noise,
     linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)),
     rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
-  backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) brightness(0.82);
-  -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.1) brightness(0.82);
+  backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px)) saturate(1.1) brightness(0.82);
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px)) saturate(1.1) brightness(0.82);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -192,8 +192,8 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
     background:
       $ads-noise,
       linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.74)) !important;
-    backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.08) brightness(1.1);
-    -webkit-backdrop-filter: blur(calc(var(--ads-blur, 22) * 1px)) saturate(1.08) brightness(1.1);
+    backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px)) saturate(1.08) brightness(1.1);
+    -webkit-backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px)) saturate(1.08) brightness(1.1);
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.75),
       inset 0 1px 0 rgba(255, 255, 255, 1),
@@ -228,5 +228,30 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
     color: #ffffff !important;
     border-color: rgba(255, 255, 255, 0.9) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28) !important;
+  }
+}
+
+// ------------------------------------------------------------ entrance ------
+.ft-bar {
+  animation: ads-bar-in calc(560ms * var(--ads-m)) cubic-bezier(0.22, 0.9, 0.24, 1.05) both;
+}
+
+@keyframes ads-bar-in {
+  0% {
+    opacity: 0;
+    translate: 0 -18px;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-bar {
+    animation: none !important;
   }
 }
