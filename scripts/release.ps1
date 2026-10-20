@@ -44,8 +44,17 @@ try {
     git add -A
     git commit -m "release: v$version" | Out-Null
   }
-  if (git rev-list --count 'origin/master..HEAD' 2>$null) {
-    git push origin HEAD | Out-Null
+  $ahead = [int](git rev-list --count 'origin/master..HEAD' 2>$null)
+  if ($ahead -gt 0) {
+    # GitHub connectivity here is intermittent, so retry with a stall guard.
+    $gitOpts = @('-c', 'http.lowSpeedLimit=1000', '-c', 'http.lowSpeedTime=45')
+    $pushed = $false
+    for ($i = 1; $i -le 3; $i++) {
+      git @gitOpts push origin HEAD 2>$null | Out-Null
+      if ($LASTEXITCODE -eq 0) { $pushed = $true; break }
+      Start-Sleep -Seconds 4
+    }
+    if (-not $pushed) { throw 'git push failed after 3 attempts' }
   }
 
   gh release create "v$version" $asset --title "Aurora Dock v$version" --generate-notes

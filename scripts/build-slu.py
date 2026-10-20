@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Package the aurora-dock theme folder into a portable .slu resource.
 
 A .slu file is:
@@ -30,8 +30,16 @@ def indent(text: str, width: int) -> str:
     return "\n".join(pad + line if line.strip() else "" for line in text.splitlines())
 
 
-def now() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+def stamp() -> str:
+    """Deterministic build stamp: newest theme file mtime.
+
+    Keeps rebuilds byte-identical when nothing changed, so the auto-sync never
+    commits a release just because of a fresh timestamp.
+    """
+    newest = max(p.stat().st_mtime for p in THEME.rglob("*") if p.is_file())
+    return datetime.datetime.fromtimestamp(
+        newest, datetime.timezone.utc
+    ).strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
 
 def compile_scss(rel: str, cache: dict) -> str:
@@ -79,7 +87,7 @@ def main() -> None:
     rid = str(uuid.uuid5(NS, "aurora-dock"))
     did = str(uuid.uuid5(NS, "aurora-dock:data"))
     cid = str(uuid.uuid5(NS, "asfkep"))
-    stamp = now()
+    built_at = stamp()
 
     doc = f"""version: 1
 resource:
@@ -90,8 +98,8 @@ resource:
   slug: aurora-dock
   metadata:
 {indent(metadata_block, 4)}
-  createdAt: {stamp}
-  updatedAt: {stamp}
+  createdAt: {built_at}
+  updatedAt: {built_at}
   status: Published
   rejectedReason: null
   reviewedAt: null
