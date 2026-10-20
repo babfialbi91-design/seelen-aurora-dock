@@ -1,6 +1,8 @@
 param([switch]$DryRun)
 
-$ErrorActionPreference = 'Stop'
+# Native tools write progress to stderr; with 'Stop' PowerShell would treat
+# that as a fatal error, so failures are checked explicitly instead.
+$ErrorActionPreference = 'Continue'
 $env:GH_PAGER = ''
 $env:GH_PROMPT_DISABLED = '1'
 $env:GIT_TERMINAL_PROMPT = '0'
@@ -58,6 +60,8 @@ try {
   }
 
   gh release create "v$version" $asset --title "Aurora Dock v$version" --generate-notes
+  if ($LASTEXITCODE -ne 0) { throw "gh release create failed with exit code $LASTEXITCODE" }
+
   git tag "v$version" 2>$null
   Write-Output "released v$version -> $asset"
 } finally {
