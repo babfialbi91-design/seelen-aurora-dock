@@ -472,7 +472,8 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
 
 // Colour returns while the tile is hovered or keyboard-focused.
 .weg-item-drag-container:hover .weg-item:not(.media-session-container),
-.weg-item-drag-container:has(:focus-visible) .weg-item:not(.media-session-container) {
+.weg-item-drag-container:has(:focus-visible) .weg-item:not(.media-session-container),
+.weg-item:not(.media-session-container):hover {
   filter: grayscale(0) !important;
 }
 
