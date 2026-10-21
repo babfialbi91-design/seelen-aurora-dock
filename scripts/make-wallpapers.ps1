@@ -94,12 +94,12 @@ function Save-Shot($bmp, [string]$name) {
 }
 
 # 1. Aurora veil: one cold bloom over black plus a soft vertical light shaft.
-$c = New-Canvas 7 3
+$c = New-Canvas 5 8
 $bmp = $c[0]; $g = $c[1]
-Add-Radial $g ($W * 0.7) ($H * 0.02) ($W * 0.6) 28
-Add-Radial $g ($W * 0.34) ($H * 0.42) ($W * 0.3) 8
-Add-Radial $g ($W * 0.16) ($H * 1.06) ($W * 0.46) 10
-Add-Noise $g 14
+Add-Radial $g ($W * 0.85) ($H * -0.08) ($W * 0.42) 15
+Add-Radial $g ($W * 0.3) ($H * 0.46) ($W * 0.26) 6
+Add-Radial $g ($W * 0.12) ($H * 1.1) ($W * 0.4) 9
+Add-Noise $g 18
 Save-Shot $bmp "01-aurora-veil"
 $g.Dispose(); $bmp.Dispose()
 
