@@ -67,12 +67,15 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
   );
   opacity: calc(var(--ads-glow, 58) / 100 * 0.62 * var(--ads-m));
   will-change: transform;
-  animation: ads-aurora calc(var(--ads-speed, 14) * 1.6s) ease-in-out infinite;
+  animation: ads-aurora calc(var(--ads-speed, 14) * 1.6s) linear infinite;
 }
 
+// The sweep runs for a moment, then the layer parks just outside the bar for
+// the rest of the cycle: an idle dock spends no frames compositing it.
 @keyframes ads-aurora {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(66.6667%, 0, 0); }
+  0% { transform: translate3d(-66.6667%, 0, 0); }
+  12% { transform: translate3d(66.6667%, 0, 0); }
+  100% { transform: translate3d(66.6667%, 0, 0); }
 }
 
 // A single white shine orbiting the bar edge.

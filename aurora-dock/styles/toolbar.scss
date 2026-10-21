@@ -1,4 +1,4 @@
-// @asfkep/aurora-dock â€” top bar (fancy-toolbar)
+// @asfkep/aurora-dock ط£آ¢أ¢â€ڑآ¬أ¢â‚¬â€Œ top bar (fancy-toolbar)
 // Monochrome black glass: transparent + black, white highlights only.
 
 $ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -149,12 +149,14 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
   );
   opacity: var(--ads-m);
   will-change: transform;
-  animation: ft-sheen calc(var(--ads-speed, 14) * 1.4s) ease-in-out infinite;
+  animation: ft-sheen calc(var(--ads-speed, 14) * 1.4s) linear infinite;
 }
 
+// Sweep, then park outside the bar until the next cycle.
 @keyframes ft-sheen {
-  from { transform: translate3d(-70%, 0, 0); }
-  to { transform: translate3d(70%, 0, 0); }
+  0% { transform: translate3d(-70%, 0, 0); }
+  14% { transform: translate3d(70%, 0, 0); }
+  100% { transform: translate3d(70%, 0, 0); }
 }
 
 .ft-corner-button {
