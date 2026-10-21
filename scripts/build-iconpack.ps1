@@ -126,8 +126,17 @@ $written = @()
 foreach ($e in $entries) {
   $path = $e.path
   if (-not (Test-Path -LiteralPath $path)) {
-    Write-Warning "skip (missing): $path"
-    continue
+    $leaf = Split-Path $path -Leaf
+    $grand = Split-Path (Split-Path $path -Parent) -Parent
+    $hit = $null
+    if ($grand -and (Test-Path -LiteralPath $grand)) {
+      $hit = Get-ChildItem -LiteralPath $grand -Recurse -Depth 2 -Filter $leaf -File -ErrorAction SilentlyContinue | Select-Object -First 1
+    }
+    if ($hit) { $path = $hit.FullName }
+    else {
+      Write-Warning "skip (missing): $($e.path)"
+      continue
+    }
   }
   $src = Get-IconBitmap $path
   if (-not $src) { Write-Warning "skip (no icon): $path"; continue }

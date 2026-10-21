@@ -22,46 +22,52 @@ entries:
     base: icons/00000001.png
   sourceMtime: 2026-06-11T08:06:02.274970Z
 - type: unique
+  umid: com.squirrel.Discord.Discord
+  path: C:\Users\asfkep\AppData\Local\Discord\Discord.exe
+  icon:
+    base: icons/00000002.png
+  sourceMtime: 2026-10-20T12:25:21.540334Z
+- type: unique
   umid: ai.opencode.desktop
   path: C:\Users\asfkep\AppData\Local\Programs\@opencode-aidesktop\OpenCode.exe
   icon:
-    base: icons/00000002.png
+    base: icons/00000003.png
   sourceMtime: 2026-10-16T12:06:22.000000Z
 - type: unique
   umid: Brave._crx_agimnkijcamfeangaknmldooml
   path: C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe
   icon:
-    base: icons/00000003.png
+    base: icons/00000004.png
   sourceMtime: 2026-10-16T04:27:15.281081Z
 - type: unique
   umid: Brave
   path: C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe
   icon:
-    base: icons/00000004.png
+    base: icons/00000005.png
   sourceMtime: 2026-10-16T04:27:15.281081Z
 - type: unique
   umid: null
   path: C:\Windows\explorer.exe
   icon:
-    base: icons/00000005.png
+    base: icons/00000006.png
   sourceMtime: 2026-06-02T06:12:07.040731Z
 - type: unique
   umid: null
   path: C:\Program Files\VS Revo Group\Revo Uninstaller\RevoUnin.exe
   icon:
-    base: icons/00000006.png
+    base: icons/00000007.png
   sourceMtime: 2026-05-12T08:57:22.000000Z
 - type: unique
   umid: Brave._crx_kahilcgkcmojkkiaclobdhejkk
   path: C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe
   icon:
-    base: icons/00000007.png
+    base: icons/00000008.png
   sourceMtime: 2026-10-16T04:27:15.281081Z
 - type: unique
   umid: pl.skmedix.sklauncher
   path: C:\Users\asfkep\AppData\Local\Programs\sklauncher\sklauncher.exe
   icon:
-    base: icons/00000008.png
+    base: icons/00000009.png
   sourceMtime: 2026-09-24T14:35:24.000000Z
 remoteEntries: []
 downloaded: false
