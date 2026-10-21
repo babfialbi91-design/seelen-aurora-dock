@@ -33,10 +33,11 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   background:
     $ads-noise,
+    radial-gradient(80% 170% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
     rgba(0, 0, 0, calc(var(--ads-opacity, 62) / 100)) !important;
-  backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px)) saturate(1.1) brightness(0.82);
-  -webkit-backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px)) saturate(1.1) brightness(0.82);
+  backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px));
+  -webkit-backdrop-filter: blur(calc(var(--ads-blur-eff, 22) * 1px));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -45,38 +46,33 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
     0 16px 40px rgba(0, 0, 0, 0.6) !important;
 }
 
-// Soft white bloom behind the bar + a slow "aurora" light drifting across it.
+// Soft "aurora" light drifting across the bar. Transform-only animation so the
+// compositor moves a cached layer instead of repainting the blur every frame.
 .taskbar::before {
   content: "";
   position: absolute;
-  inset: -1px;
+  top: -1px;
+  bottom: -1px;
+  left: -100%;
+  width: 300%;
   z-index: -1;
   border-radius: inherit;
   pointer-events: none;
-  background:
-    linear-gradient(
-      115deg,
-      rgba(255, 255, 255, 0) 28%,
-      rgba(255, 255, 255, 0.15) 46%,
-      rgba(255, 255, 255, 0.06) 53%,
-      rgba(255, 255, 255, 0) 72%
-    ),
-    radial-gradient(80% 170% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%);
-  background-size:
-    260% 100%,
-    100% 100%;
-  background-repeat: no-repeat, no-repeat;
-  background-position:
-    220% 0,
-    50% 0;
-  filter: blur(calc(6px + var(--ads-glow, 58) * 0.08px));
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(255, 255, 255, 0.16) 47%,
+    rgba(255, 255, 255, 0.05) 53%,
+    rgba(255, 255, 255, 0) 62%
+  );
   opacity: calc(var(--ads-glow, 58) / 100 * 0.62 * var(--ads-m));
+  will-change: transform;
   animation: ads-aurora calc(var(--ads-speed, 14) * 1.6s) ease-in-out infinite;
 }
 
 @keyframes ads-aurora {
-  from { background-position: 220% 0, 50% 0; }
-  to { background-position: -120% 0, 50% 0; }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(66.6667%, 0, 0); }
 }
 
 // A single white shine orbiting the bar edge.
@@ -111,6 +107,16 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
 
 @keyframes ads-spin {
   to { --ads-angle: 360deg; }
+}
+
+// The edge shine only runs while the pointer is over the dock, so an idle
+// desktop pays nothing for it.
+.taskbar::after {
+  animation-play-state: paused;
+}
+.taskbar:hover::after,
+.taskbar:focus-within::after {
+  animation-play-state: running;
 }
 
 .taskbar.horizontal {
@@ -672,25 +678,15 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
 }
 
 // ------------------------------------------------------------ entrance ------
-// The dock rises out of the edge once per mount (Seelen start / theme reload).
+// Opacity-only so the bar never keeps a composited transform around: an
+// animated ancestor would re-rasterise every tile while the wave runs.
 .taskbar {
-  animation: ads-dock-in calc(620ms * var(--ads-m)) cubic-bezier(0.22, 0.9, 0.24, 1.06) both;
+  animation: ads-dock-in calc(420ms * var(--ads-m)) ease-out;
 }
 
 @keyframes ads-dock-in {
-  0% {
-    opacity: 0;
-    translate: 0 26px;
-    scale: 0.965;
-  }
-  55% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
