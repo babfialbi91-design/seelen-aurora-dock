@@ -1,0 +1,102 @@
+# Aurora Dock
+
+هوية **أحادية اللون** لـ Seelen UI: زجاج داكن/فاتح، لمعات بيضاء فقط، وحركات هادئة.
+يعمل على Windows 10 و 11 مع Seelen UI 2.8.x.
+
+![dock](docs/screenshots/dock-dark.png)
+
+## المحتويات
+
+| المسار | الوصف |
+| --- | --- |
+| `aurora-dock/` | الثيم نفسه (`metadata.yml` + `styles/*.scss` لكل وجت). |
+| `wallpapers/` | 4 خلفيات مونوكروم 3840×2160 (JPG) + معاينات. |
+| `iconpack/` | حزمة أيقونات رمادية لتطبيقات الدوك (`@user/aurora-mono`). |
+| `scripts/` | بناء الحزمة، الإصدار، الخلفيات، حزمة الأيقونات، مزامنة التراي. |
+| `dist/aurora-dock.slu` | الحزمة الجاهزة للتركيب (ناتج البناء). |
+| `docs/screenshots/` | لقطات الوضع الداكن والفاتح. |
+
+## التركيب
+
+**كملف حزمة (.slu)** — من صفحة [Releases](../../releases) نزّل `aurora-dock.slu` ثم اسحبه على نافذة Seelen UI.
+
+**كمجلد** — انسخ `aurora-dock/` إلى:
+
+```
+%APPDATA%\com.seelen.seelen-ui\themes\aurora-dock
+```
+
+ثم من إعدادات Seelen: `Themes → Aurora Dock`، وأعد تشغيل Seelen.
+
+> الثيم لا يُعاد تحميله تلقائياً: أغلق `seelen-ui` من مدير المهام وافتحه من جديد بعد أي تعديل.
+
+## المزايا
+
+- **دوك زجاجي** مع موجة تكبير، لمعان أورورا على الحافة، وحركة ضغط مطاطية.
+- **مونوكروم صارم**: كل الأيقونات رمادية، وتعود الألوان عند التمرير/التركيز فقط.
+- **وضع نهاري** يتبع `prefers-color-scheme` في Windows (زجاج أبيض + حبر داكن).
+- **Spotlight**: البلاطة تحت المؤشر تُضاء من الأسفل وجاراتها تأخذ هالة خفيفة.
+- **حركة دخول** للدوك والشريط عند تشغيل Seelen (تُحترم `prefers-reduced-motion`).
+- **Alt+Tab** و**مساحات العمل** بتصميم بطاقات زجاجية موحّد.
+- **إشعارات** ككروت زجاجية بحدّ مضيء وحركة ظهور منزلقة.
+- **العربية**: أرقام جدولية و`unicode-bidi: plaintext` للنصوص المختلطة.
+
+| داكن | فاتح |
+| --- | --- |
+| ![](docs/screenshots/dock-dark.png) | ![](docs/screenshots/dock-light.png) |
+| ![](docs/screenshots/bar-dark.png) | ![](docs/screenshots/bar-light.png) |
+
+![Alt+Tab](docs/screenshots/task-switcher.png)
+![Workspaces](docs/screenshots/workspaces.png)
+
+## الإعدادات
+
+تظهر داخل Seelen تحت إعدادات الثيم، وكلها متغيّرات CSS حقيقية:
+
+| المتغيّر | الافتراضي | الوظيفة |
+| --- | --- | --- |
+| `--ads-opacity` | `62` | عتامة الزجاج (%) |
+| `--ads-blur` | `22` | قوة الضباب (px) |
+| `--ads-radius` | `24` | استدارة الحواف (px) |
+| `--ads-zoom-size` | `84px` | حجم الأيقونة تحت المؤشر (ضعه = حجم العنصر لإيقاف الموجة) |
+| `--ads-wave-duration` | `160` | زمن موجة التكبير (ms) |
+| `--ads-speed` | `14` | سرعة دوران اللمعان (s) |
+| `--ads-glow` | `58` | شدّة التوهّج الأبيض |
+| `--ads-motion` | `100` | شدّة الحركات الزخرفية (0 = إيقاف) |
+| `--ads-fx` | `100` | ميزانية المؤثرات: يقلّل/يوقف الضباب لتوفير البطارية |
+
+## الخلفيات
+
+`wallpapers/*.jpg` بدقة 3840×2160، وتُعاد توليدها بـ:
+
+```powershell
+powershell -File scripts/make-wallpapers.ps1
+```
+
+## حزمة الأيقونات
+
+`iconpack/` تبني حزمة `@user/aurora-mono` من تطبيقات الدوك المثبّتة (256px ثم إزالة تشبع):
+
+```powershell
+powershell -File scripts/build-iconpack.ps1 -Install
+```
+
+بعدها فعّلها من Seelen: `Icon Packs → Aurora Mono`. (الحزمة تغطي تطبيقات الدوك؛ البقية تبقى من `@system/icon-pack`.)
+
+## البناء والإصدار
+
+```powershell
+# حزمة .slu فقط
+python scripts/build-slu.py
+
+# إصدار كامل: بناء + commit + push + GitHub Release + tag
+powershell -File scripts/release.ps1            # أضف -DryRun للمعاينة
+```
+
+الـworkflow `release.yml` يبني الحزمة وينشرها تلقائياً عند دفع أي tag يبدأ بـ`v`،
+و`ci.yml` يصرّف كل ملفات SCSS عند كل push.
+
+## ملاحظات
+
+- بعض الأسطح (ضوضاء الزجاج، البطاقات) تعتمد على `backdrop-filter`؛ إن لاحظت بطئاً خفّض `--ads-fx` أو `--ads-blur`.
+- الثيم لا يعدّل النوافذ العادية في Windows؛ يخصّ واجهات Seelen فقط.
