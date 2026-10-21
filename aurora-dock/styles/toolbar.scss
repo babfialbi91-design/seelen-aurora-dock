@@ -1,4 +1,4 @@
-// @asfkep/aurora-dock — top bar (fancy-toolbar)
+// @asfkep/aurora-dock â€” top bar (fancy-toolbar)
 // Monochrome black glass: transparent + black, white highlights only.
 
 $ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -130,19 +130,6 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
   box-shadow:
     0 0 8px rgba(255, 255, 255, 0.95),
     0 0 16px rgba(255, 255, 255, 0.55) !important;
-  animation: ft-badge-pulse 2.8s ease-in-out infinite;
-}
-
-@keyframes ft-badge-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, calc(0.95 * var(--ads-m, 1))),
-      0 0 16px rgba(255, 255, 255, calc(0.55 * var(--ads-m, 1)));
-  }
-  50% {
-    box-shadow: 0 0 13px rgba(255, 255, 255, var(--ads-m, 1)),
-      0 0 26px rgba(255, 255, 255, calc(0.8 * var(--ads-m, 1)));
-  }
 }
 
 // A soft white sheen sweeping across the bar every now and then.

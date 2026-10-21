@@ -482,15 +482,15 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
 }
 
 // Gentle breathing on the focused-app indicator and the glowing count badges.
+// Opacity is a compositor-only property, so the glow can throb without
+// repainting its box-shadow on every frame.
 @keyframes ads-breathe {
   0%,
   100% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, calc(0.85 * var(--ads-m, 1))),
-      0 0 14px rgba(255, 255, 255, calc(0.5 * var(--ads-m, 1)));
+    opacity: calc(0.66 * var(--ads-m, 1));
   }
   50% {
-    box-shadow: 0 0 13px rgba(255, 255, 255, var(--ads-m, 1)),
-      0 0 26px rgba(255, 255, 255, calc(0.8 * var(--ads-m, 1)));
+    opacity: var(--ads-m, 1);
   }
 }
 
@@ -498,22 +498,11 @@ $ads-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
   animation: ads-breathe 2.6s ease-in-out infinite;
 }
 
-@keyframes ads-badge-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, calc(0.9 * var(--ads-m, 1))),
-      0 0 18px rgba(255, 255, 255, calc(0.5 * var(--ads-m, 1)));
-  }
-  50% {
-    box-shadow: 0 0 13px rgba(255, 255, 255, var(--ads-m, 1)),
-      0 0 30px rgba(255, 255, 255, calc(0.78 * var(--ads-m, 1)));
-  }
-}
-
+// Badges keep a steady halo instead of a permanent repaint loop.
 .weg-item-badge,
 .weg-item-instance-counter-badge,
 .weg-item-notification-badge {
-  animation: ads-badge-pulse 2.8s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 22px rgba(255, 255, 255, 0.55) !important;
 }
 
 // ------------------------------------------------------ media session ------
