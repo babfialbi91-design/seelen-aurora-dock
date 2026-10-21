@@ -96,17 +96,10 @@ function Save-Shot($bmp, [string]$name) {
 # 1. Aurora veil: one cold bloom over black plus a soft vertical light shaft.
 $c = New-Canvas 7 3
 $bmp = $c[0]; $g = $c[1]
-Add-Radial $g ($W * 0.7) ($H * 0.05) ($W * 0.62) 30
-Add-Radial $g ($W * 0.18) ($H * 1.05) ($W * 0.5) 12
-$shaft = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
-  (New-Object System.Drawing.Rectangle ([int]($W * 0.4)), 0, ([int]($W * 0.22)), $H),
-  (Color 0 255 255 255), (Color 7 255 255 255), [single]0
-)
-$shaft.SetBlendTriangularShape([single]0.5, [single]1.0)
-$g.FillRectangle($shaft, ([int]($W * 0.4)), 0, ([int]($W * 0.22)), $H)
-$shaft.Dispose()
-Add-Noise $g 6
-Add-Vignette $g 150
+Add-Radial $g ($W * 0.7) ($H * 0.02) ($W * 0.6) 28
+Add-Radial $g ($W * 0.34) ($H * 0.42) ($W * 0.3) 8
+Add-Radial $g ($W * 0.16) ($H * 1.06) ($W * 0.46) 10
+Add-Noise $g 14
 Save-Shot $bmp "01-aurora-veil"
 $g.Dispose(); $bmp.Dispose()
 
@@ -122,8 +115,7 @@ for ($i = 1; $i -le 44; $i++) {
   $g.DrawEllipse($pen, [single]($cx - $r), [single]($cy - $r * 0.86), [single]($r * 2), [single]($r * 1.72))
   $pen.Dispose()
 }
-Add-Noise $g 6
-Add-Vignette $g 170
+Add-Noise $g 13
 Save-Shot $bmp "02-ink-rings"
 $g.Dispose(); $bmp.Dispose()
 
@@ -146,8 +138,7 @@ for ($i = 0; $i -lt 8; $i++) {
 }
 $g.ResetTransform()
 Add-Radial $g ($W * 0.78) ($H * 0.2) ($W * 0.45) 14
-Add-Noise $g 7
-Add-Vignette $g 165
+Add-Noise $g 13
 Save-Shot $bmp "03-silk-folds"
 $g.Dispose(); $bmp.Dispose()
 
@@ -168,7 +159,6 @@ for ($y = 0; $y -lt $H; $y += $step) {
     $b.Dispose()
   }
 }
-Add-Noise $g 5
-Add-Vignette $g 175
+Add-Noise $g 13
 Save-Shot $bmp "04-star-grid"
 $g.Dispose(); $bmp.Dispose()
