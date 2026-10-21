@@ -25,6 +25,7 @@ function New-Canvas([int]$top, [int]$bottom) {
   $g = [System.Drawing.Graphics]::FromImage($bmp)
   $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
   $g.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
+  $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
   $rect = New-Object System.Drawing.Rectangle 0, 0, $W, $H
   $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
     $rect,
@@ -37,20 +38,22 @@ function New-Canvas([int]$top, [int]$bottom) {
   return , @($bmp, $g)
 }
 
-# Soft radial bloom built from stacked translucent ellipses.
-function Add-Bloom($g, [double]$cx, [double]$cy, [double]$r, [int]$targetAlpha, [int]$steps = 26) {
-  $per = [Math]::Max(1, [int]($targetAlpha / $steps))
-  for ($i = $steps; $i -ge 1; $i--) {
-    $rr = $r * $i / $steps
-    $b = New-Object System.Drawing.SolidBrush (Color $per 255 255 255)
-    $g.FillEllipse($b, [single]($cx - $rr), [single]($cy - $rr), [single]($rr * 2), [single]($rr * 2))
-    $b.Dispose()
-  }
+# One smooth radial glow (single gradient, no banding).
+function Add-Radial($g, [double]$cx, [double]$cy, [double]$r, [int]$alpha) {
+  $path = New-Object System.Drawing.Drawing2D.GraphicsPath
+  $path.AddEllipse([single]($cx - $r), [single]($cy - $r), [single]($r * 2), [single]($r * 2))
+  $pgb = New-Object System.Drawing.Drawing2D.PathGradientBrush($path)
+  $pgb.CenterPoint = New-Object System.Drawing.PointF([single]$cx, [single]$cy)
+  $pgb.CenterColor = (Color $alpha 255 255 255)
+  $pgb.SurroundColors = @((Color 0 255 255 255))
+  $g.FillPath($pgb, $path)
+  $pgb.Dispose()
+  $path.Dispose()
 }
 
-function Add-Vignette($g, [int]$strength = 200) {
+function Add-Vignette($g, [int]$strength = 170) {
   $path = New-Object System.Drawing.Drawing2D.GraphicsPath
-  $path.AddEllipse([single](-$W * 0.35), [single](-$H * 0.75), [single]($W * 1.7), [single]($H * 2.5))
+  $path.AddEllipse([single](-$W * 0.4), [single](-$H * 0.8), [single]($W * 1.8), [single]($H * 2.6))
   $pgb = New-Object System.Drawing.Drawing2D.PathGradientBrush($path)
   $pgb.CenterColor = (Color 0 0 0 0)
   $pgb.SurroundColors = @((Color $strength 0 0 0))
@@ -59,7 +62,7 @@ function Add-Vignette($g, [int]$strength = 200) {
   $path.Dispose()
 }
 
-function Add-Noise($g, [int]$alpha = 10, [int]$tile = 256) {
+function Add-Noise($g, [int]$alpha = 7, [int]$tile = 256) {
   $noise = New-Object System.Drawing.Bitmap $tile, $tile
   for ($y = 0; $y -lt $tile; $y++) {
     for ($x = 0; $x -lt $tile; $x++) {
@@ -74,9 +77,12 @@ function Add-Noise($g, [int]$alpha = 10, [int]$tile = 256) {
   $noise.Dispose()
 }
 
-function Save-Png($bmp, [string]$name) {
-  $file = Join-Path $OutDir "$name.png"
-  $bmp.Save($file, [System.Drawing.Imaging.ImageFormat]::Png)
+function Save-Shot($bmp, [string]$name) {
+  $file = Join-Path $OutDir "$name.jpg"
+  $codec = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq "image/jpeg" }
+  $params = New-Object System.Drawing.Imaging.EncoderParameters 1
+  $params.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter ([System.Drawing.Imaging.Encoder]::Quality), 95L
+  $bmp.Save($file, $codec, $params)
   $preview = New-Object System.Drawing.Bitmap 1600, 900
   $pg = [System.Drawing.Graphics]::FromImage($preview)
   $pg.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
@@ -84,83 +90,85 @@ function Save-Png($bmp, [string]$name) {
   $pg.Dispose()
   $preview.Save((Join-Path $OutDir "previews\$name.jpg"), [System.Drawing.Imaging.ImageFormat]::Jpeg)
   $preview.Dispose()
-  "$name.png"
+  "$name.jpg"
 }
 
-# 1. Aurora veil: one big cold bloom over black, thin vertical light band.
-$c = New-Canvas 12 4
+# 1. Aurora veil: one cold bloom over black plus a soft vertical light shaft.
+$c = New-Canvas 7 3
 $bmp = $c[0]; $g = $c[1]
-Add-Bloom $g ($W * 0.72) ($H * 0.08) ($W * 0.55) 26
-Add-Bloom $g ($W * 0.22) ($H * 1.02) ($W * 0.45) 14
-$band = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
-  (New-Object System.Drawing.Rectangle ([int]($W * 0.46)), 0, ([int]($W * 0.08)), $H),
-  (Color 0 255 255 255), (Color 16 255 255 255), [single]0
+Add-Radial $g ($W * 0.7) ($H * 0.05) ($W * 0.62) 30
+Add-Radial $g ($W * 0.18) ($H * 1.05) ($W * 0.5) 12
+$shaft = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
+  (New-Object System.Drawing.Rectangle ([int]($W * 0.4)), 0, ([int]($W * 0.22)), $H),
+  (Color 0 255 255 255), (Color 7 255 255 255), [single]0
 )
-$g.FillRectangle($band, ([int]($W * 0.46)), 0, ([int]($W * 0.08)), $H)
-$band.Dispose()
-Add-Noise $g 9
-Add-Vignette $g 180
-Save-Png $bmp "01-aurora-veil"
+$shaft.SetBlendTriangularShape([single]0.5, [single]1.0)
+$g.FillRectangle($shaft, ([int]($W * 0.4)), 0, ([int]($W * 0.22)), $H)
+$shaft.Dispose()
+Add-Noise $g 6
+Add-Vignette $g 150
+Save-Shot $bmp "01-aurora-veil"
 $g.Dispose(); $bmp.Dispose()
 
 # 2. Ink rings: concentric hairlines drifting off the left edge.
-$c = New-Canvas 14 6
+$c = New-Canvas 8 3
 $bmp = $c[0]; $g = $c[1]
-Add-Bloom $g ($W * 0.3) ($H * 0.55) ($W * 0.4) 10
-$cx = $W * 0.16; $cy = $H * 0.5
-for ($i = 1; $i -le 46; $i++) {
-  $r = $W * 0.045 * $i
-  $a = [int]([Math]::Max(2, 16 - $i * 0.28))
-  $pen = New-Object System.Drawing.Pen (Color $a 255 255 255), ([single](1.2 + $i * 0.02))
+Add-Radial $g ($W * 0.28) ($H * 0.52) ($W * 0.42) 10
+$cx = $W * 0.14; $cy = $H * 0.5
+for ($i = 1; $i -le 44; $i++) {
+  $r = $W * 0.05 * $i
+  $a = [int]([Math]::Max(1, 13 - $i * 0.25))
+  $pen = New-Object System.Drawing.Pen (Color $a 255 255 255), ([single](1.1 + $i * 0.015))
   $g.DrawEllipse($pen, [single]($cx - $r), [single]($cy - $r * 0.86), [single]($r * 2), [single]($r * 1.72))
   $pen.Dispose()
 }
-Add-Noise $g 10
-Add-Vignette $g 210
-Save-Png $bmp "02-ink-rings"
+Add-Noise $g 6
+Add-Vignette $g 170
+Save-Shot $bmp "02-ink-rings"
 $g.Dispose(); $bmp.Dispose()
 
 # 3. Silk folds: wide diagonal translucent bands.
-$c = New-Canvas 10 5
+$c = New-Canvas 6 2
 $bmp = $c[0]; $g = $c[1]
 $g.TranslateTransform([single]($W / 2), [single]($H / 2))
-$g.RotateTransform(-24)
-$span = [int]($W * 1.6)
-for ($i = 0; $i -lt 7; $i++) {
-  $x = - $span / 2 + $i * ($span / 7)
-  $alpha = 6 + ($i % 3) * 3
-  $rect = New-Object System.Drawing.Rectangle ([int]$x), ([int](-$H)), ([int]($span / 7)), ([int]($H * 2))
+$g.RotateTransform(-22)
+$span = [int]($W * 1.8)
+for ($i = 0; $i -lt 8; $i++) {
+  $x = - $span / 2 + $i * ($span / 8)
+  $alpha = 5 + ($i % 3) * 3
+  $rect = New-Object System.Drawing.Rectangle ([int]$x), ([int](-$H)), ([int]($span / 8)), ([int]($H * 2))
   $lg = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
     $rect, (Color 0 255 255 255), (Color $alpha 255 255 255), [single]0
   )
+  $lg.SetBlendTriangularShape([single]0.5, [single]1.0)
   $g.FillRectangle($lg, $rect)
   $lg.Dispose()
 }
 $g.ResetTransform()
-Add-Bloom $g ($W * 0.8) ($H * 0.18) ($W * 0.4) 12
-Add-Noise $g 11
-Add-Vignette $g 200
-Save-Png $bmp "03-silk-folds"
+Add-Radial $g ($W * 0.78) ($H * 0.2) ($W * 0.45) 14
+Add-Noise $g 7
+Add-Vignette $g 165
+Save-Shot $bmp "03-silk-folds"
 $g.Dispose(); $bmp.Dispose()
 
-# 4. Star grid: fading dot lattice with a single warm-less glow.
-$c = New-Canvas 9 3
+# 4. Star grid: fading dot lattice with a single glow.
+$c = New-Canvas 6 2
 $bmp = $c[0]; $g = $c[1]
-Add-Bloom $g ($W * 0.5) ($H * 0.42) ($W * 0.36) 12
+Add-Radial $g ($W * 0.5) ($H * 0.44) ($W * 0.4) 14
 $step = 64
 for ($y = 0; $y -lt $H; $y += $step) {
   for ($x = 0; $x -lt $W; $x += $step) {
     $dx = ($x - $W * 0.5) / ($W * 0.5)
-    $dy = ($y - $H * 0.42) / ($H * 0.6)
+    $dy = ($y - $H * 0.44) / ($H * 0.62)
     $d = [Math]::Sqrt($dx * $dx + $dy * $dy)
-    $a = [int]([Math]::Max(0, 34 - $d * 30))
+    $a = [int]([Math]::Max(0, 26 - $d * 24))
     if ($a -le 0) { continue }
     $b = New-Object System.Drawing.SolidBrush (Color $a 255 255 255)
-    $g.FillEllipse($b, $x, $y, 2.4, 2.4)
+    $g.FillEllipse($b, $x, $y, 2.2, 2.2)
     $b.Dispose()
   }
 }
-Add-Noise $g 8
-Add-Vignette $g 215
-Save-Png $bmp "04-star-grid"
+Add-Noise $g 5
+Add-Vignette $g 175
+Save-Shot $bmp "04-star-grid"
 $g.Dispose(); $bmp.Dispose()
