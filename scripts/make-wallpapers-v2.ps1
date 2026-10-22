@@ -1,4 +1,4 @@
-﻿# Generates the cinematic monochrome wallpaper set with GDI+ (no external deps).
+# Generates the cinematic monochrome wallpaper set with GDI+ (no external deps).
 # Backgrounds are painted per-pixel in C# so soft light never bands, then the
 # vector shapes are composed on top at full resolution.
 # Usage: powershell -File scripts/make-wallpapers-v2.ps1 [-Width 3840] [-Height 2160]
@@ -450,13 +450,13 @@ $b.Dispose()
 # 09 prism — stacked glass plates
 # --------------------------------------------------------------------------
 $b = New-Bg 26 6 @(0.55, 0.46, 0.42, 16) @(0.55, 0.5, 0.16, 12) @(0, 0, 1, 0) 0.32
-[Wp]::Glow($b, $CW * 0.55, $CH * 0.50, $CW * 0.30, 8)
+[Wp]::Glow($b, $CW * 0.55, $CH * 0.50, $CW * 0.30, 5)
 $g = New-G $b
 
 $plates = @(
-  @{ a = 42; sz = 0.325; dx = -0.062; dy = 0.05; fill = 12; edge = 175 },
-  @{ a = 16; sz = 0.275; dx = 0.055; dy = -0.035; fill = 9; edge = 200 },
-  @{ a = 0; sz = 0.225; dx = -0.01; dy = 0.0; fill = 6; edge = 232 }
+  @{ a = 42; sz = 0.325; dx = -0.062; dy = 0.05; fill = 6; edge = 162 },
+  @{ a = 16; sz = 0.275; dx = 0.055; dy = -0.035; fill = 4; edge = 192 },
+  @{ a = 0; sz = 0.225; dx = -0.01; dy = 0.0; fill = 3; edge = 224 }
 )
 foreach ($p in $plates) {
   $side = $CW * $p.sz
@@ -474,7 +474,7 @@ foreach ($p in $plates) {
   $g.SetClip($path)
   $sb = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 0 255), (C 0 255), ([single]48)
   $sbc = New-Object System.Drawing.Drawing2D.ColorBlend 4
-  $sbc.Colors = @((C 0 255), (C 7 255), (C 11 255), (C 0 255))
+  $sbc.Colors = @((C 0 255), (C 4 255), (C 6 255), (C 0 255))
   $sbc.Positions = @([single]0, ([single]0.40), ([single]0.50), [single]1)
   $sb.InterpolationColors = $sbc
   $g.FillRectangle($sb, $rect)
@@ -498,7 +498,7 @@ foreach ($p in $plates) {
     $halo = New-Object System.Drawing.Drawing2D.GraphicsPath
     $halo.AddEllipse([single](-0.40 * $s), [single](-0.40 * $s), [single](0.80 * $s), [single](0.80 * $s))
     $hbr = New-Object System.Drawing.Drawing2D.PathGradientBrush $halo
-    $hbr.CenterColor = (C 14 255)
+    $hbr.CenterColor = (C 8 255)
     $hbr.SurroundColors = @((C 0 255))
     $g.FillPath($hbr, $halo)
     $hbr.Dispose(); $halo.Dispose()
