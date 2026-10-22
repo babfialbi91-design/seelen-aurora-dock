@@ -400,16 +400,85 @@ $plates = @(
 foreach ($p in $plates) {
   $side = $CW * $p.sz
   $cx2 = $CW * (0.55 + $p.dx); $cy2 = $CH * (0.50 + $p.dy)
+  $rect = New-Object System.Drawing.RectangleF ([single](-$side / 2)), ([single](-$side / 2)), ([single]$side), ([single]$side)
   $state = $g.Save()
   $g.TranslateTransform([single]$cx2, [single]$cy2)
   $g.RotateTransform([single]$p.a)
   $path = Round-Path (-$side / 2) (-$side / 2) $side $side ($side * 0.16)
-  $fg = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF ([single](-$side / 2)), ([single](-$side / 2)), ([single]$side), ([single]$side)), (C ([int]($p.fill * 1.8)) 255), (C ([int]($p.fill * 0.35)) 255), ([single]90)
+  $fg = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C ([int]($p.fill * 1.8)) 255), (C ([int]($p.fill * 0.35)) 255), ([single]90)
   $g.FillPath($fg, $path)
   $fg.Dispose()
-  $pen = New-Pen $p.edge 2.0
+
+  $sheen = $g.Save()
+  $g.SetClip($path)
+  $sb = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 0 255), (C 0 255), ([single]48)
+  $sbc = New-Object System.Drawing.Drawing2D.ColorBlend 4
+  $sbc.Colors = @((C 0 255), (C 14 255), (C 24 255), (C 0 255))
+  $sbc.Positions = @([single]0, ([single]0.40), ([single]0.50), [single]1)
+  $sb.InterpolationColors = $sbc
+  $g.FillRectangle($sb, $rect)
+  $sb.Dispose()
+  $g.Restore($sheen)
+
+  $eb = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C $p.edge 255), (C ([int]($p.edge * 0.22)) 255), ([single]55)
+  $pen = New-Pen 255 2.0
+  $pen.Brush = $eb
   $g.DrawPath($pen, $path)
-  $pen.Dispose()
+  $pen.Dispose(); $eb.Dispose()
+
+  $inset = $side * 0.022
+  $inPath = Round-Path (-$side / 2 + $inset) (-$side / 2 + $inset) ($side - $inset * 2) ($side - $inset * 2) ($side * 0.14)
+  $penIn = New-Pen ([int]($p.edge * 0.20)) 1.1
+  $g.DrawPath($penIn, $inPath)
+  $penIn.Dispose(); $inPath.Dispose()
+
+  if ($p.a -eq 0) {
+    $s = $side
+    $halo = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $halo.AddEllipse([single](-0.40 * $s), [single](-0.40 * $s), [single](0.80 * $s), [single](0.80 * $s))
+    $hbr = New-Object System.Drawing.Drawing2D.PathGradientBrush $halo
+    $hbr.CenterColor = (C 34 255)
+    $hbr.SurroundColors = @((C 0 255))
+    $g.FillPath($hbr, $halo)
+    $hbr.Dispose(); $halo.Dispose()
+
+    $arcHalo = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $arcHalo.AddArc([single](-0.50 * $s), [single](-0.44 * $s), [single](1.00 * $s), [single](1.00 * $s), 202, 136)
+    $penA1 = New-Pen 34 3.2
+    $g.DrawPath($penA1, $arcHalo)
+    $penA1.Dispose()
+    $penA2 = New-Pen 96 1.2
+    $g.DrawPath($penA2, $arcHalo)
+    $penA2.Dispose(); $arcHalo.Dispose()
+
+    $markW = $s * 0.050
+    $legs = [System.Drawing.PointF[]]@(
+      (New-Object System.Drawing.PointF ([single](-0.235 * $s)), ([single](0.300 * $s))),
+      (New-Object System.Drawing.PointF ([single](0)), ([single](-0.395 * $s))),
+      (New-Object System.Drawing.PointF ([single](0.235 * $s)), ([single](0.300 * $s)))
+    )
+    $shadowPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(90, 0, 0, 0)), ([single]($markW * 1.55))
+    $shadowPen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
+    $shadowPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $shadowPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $st2 = $g.Save()
+    $g.TranslateTransform([single]($s * 0.007), [single]($s * 0.012))
+    $g.DrawLines($shadowPen, $legs)
+    $g.Restore($st2)
+    $shadowPen.Dispose()
+
+    $markPen = New-Pen 210 $markW
+    $g.DrawLines($markPen, $legs)
+
+    $bar = [System.Drawing.PointF[]]@(
+      (New-Object System.Drawing.PointF ([single](-0.128 * $s)), ([single](0.085 * $s))),
+      (New-Object System.Drawing.PointF ([single](0.128 * $s)), ([single](0.085 * $s)))
+    )
+    $barPen = New-Pen 150 ($markW * 0.78)
+    $g.DrawLines($barPen, $bar)
+    $barPen.Dispose()
+    $markPen.Dispose()
+  }
 
   $path.Dispose()
   $g.Restore($state)
