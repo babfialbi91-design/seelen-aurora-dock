@@ -503,29 +503,21 @@ foreach ($p in $plates) {
     $g.FillPath($hbr, $halo)
     $hbr.Dispose(); $halo.Dispose()
 
-    $arcHalo = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $arcHalo.AddArc([single](-0.50 * $s), [single](-0.44 * $s), [single](1.00 * $s), [single](1.00 * $s), 202, 136)
-    $penA1 = New-Pen 34 3.2
-    $g.DrawPath($penA1, $arcHalo)
-    $penA1.Dispose()
-    $penA2 = New-Pen 96 1.2
-    $g.DrawPath($penA2, $arcHalo)
-    $penA2.Dispose(); $arcHalo.Dispose()
-
-    $markW = $s * 0.040
+    $arcHalo = $null
+    $markW = $s * 0.036
     $leftLeg = [System.Drawing.PointF[]]@(
-      (New-Object System.Drawing.PointF ([single](-0.228 * $s)), ([single](0.292 * $s))),
-      (New-Object System.Drawing.PointF ([single](0.020 * $s)), ([single](-0.402 * $s)))
+      (New-Object System.Drawing.PointF ([single](-0.205 * $s)), ([single](0.258 * $s))),
+      (New-Object System.Drawing.PointF ([single](0.013 * $s)), ([single](-0.352 * $s)))
     )
     $rightLeg = [System.Drawing.PointF[]]@(
-      (New-Object System.Drawing.PointF ([single](0.228 * $s)), ([single](0.292 * $s))),
-      (New-Object System.Drawing.PointF ([single](-0.020 * $s)), ([single](-0.402 * $s)))
+      (New-Object System.Drawing.PointF ([single](0.205 * $s)), ([single](0.258 * $s))),
+      (New-Object System.Drawing.PointF ([single](-0.013 * $s)), ([single](-0.352 * $s)))
     )
-    $shadowPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(85, 0, 0, 0)), ([single]($markW * 1.9))
+    $shadowPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(58, 0, 0, 0)), ([single]($markW * 1.7))
     $shadowPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
     $shadowPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
     $st2 = $g.Save()
-    $g.TranslateTransform([single]($s * 0.008), [single]($s * 0.013))
+    $g.TranslateTransform([single]($s * 0.006), [single]($s * 0.009))
     $g.DrawLines($shadowPen, $leftLeg)
     $g.DrawLines($shadowPen, $rightLeg)
     $g.Restore($st2)
@@ -536,8 +528,8 @@ foreach ($p in $plates) {
     $g.DrawLines($markPen, $rightLeg)
 
     $bar = [System.Drawing.PointF[]]@(
-      (New-Object System.Drawing.PointF ([single](-0.108 * $s)), ([single](0.108 * $s))),
-      (New-Object System.Drawing.PointF ([single](0.108 * $s)), ([single](0.108 * $s)))
+      (New-Object System.Drawing.PointF ([single](-0.096 * $s)), ([single](0.092 * $s))),
+      (New-Object System.Drawing.PointF ([single](0.096 * $s)), ([single](0.092 * $s)))
     )
     $barPen = New-Pen 132 ($markW * 0.92)
     $g.DrawLines($barPen, $bar)
