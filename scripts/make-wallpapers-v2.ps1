@@ -234,8 +234,18 @@ for ($i = 0; $i -lt 7; $i++) {
   $pen.Dispose()
 }
 $g.Dispose()
-[Wp]::Glow($b, $cx - $rad * 0.62, $cy - $rad * 0.78, $rad * 0.26, 26)
-[Wp]::Glow($b, $cx - $rad * 0.62, $cy - $rad * 0.78, $rad * 0.55, 10)
+[Wp]::Glow($b, $cx - $rad * 0.62, $cy - $rad * 0.78, $rad * 0.30, 34)
+[Wp]::Glow($b, $cx - $rad * 0.62, $cy - $rad * 0.78, $rad * 0.60, 12)
+$inner = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+[Wp]::Glow($inner, $cx - $rad * 0.86, $cy - $rad * 0.86, $rad * 0.34, 30)
+[Wp]::Glow($inner, $cx - $rad * 0.86, $cy - $rad * 0.86, $rad * 0.70, 9)
+$clip = New-Object System.Drawing.Drawing2D.GraphicsPath
+$clip.AddEllipse([single]($cx - $rad), [single]($cy - $rad), [single]($rad * 2), [single]($rad * 2))
+$gc = New-G $b
+$gc.SetClip($clip)
+$gc.DrawImage($inner, 0, 0)
+$gc.Dispose(); $clip.Dispose(); $inner.Dispose()
+
 $g = New-G $b
 $fo = New-Pen 14 1.2
 $g.DrawEllipse($fo, [single]($cx - $rad * 1.42), [single]($cy - $rad * 1.42), [single]($rad * 2.84), [single]($rad * 2.84))
@@ -271,7 +281,8 @@ $g.DrawLine($edge3, [single]$x1, [single]$y0, [single]$x1, [single]$y1)
 $edge3.Dispose()
 $g.Dispose()
 
-[Wp]::Glow($b, $x0 - $CW * 0.01, ($y0 + $y1) / 2, ($y1 - $y0) * 0.55, 10)`r`n[Wp]::Glow($b, $x0, ($y0 + $y1) / 2, ($y1 - $y0) * 0.30, 12)
+[Wp]::Glow($b, $x0 - $CW * 0.01, ($y0 + $y1) / 2, ($y1 - $y0) * 0.55, 10)
+[Wp]::Glow($b, $x0, ($y0 + $y1) / 2, ($y1 - $y0) * 0.30, 12)
 [Wp]::Glow($b, $x0, ($y0 + $y1) / 2, ($y1 - $y0) * 0.35, 10)
 [Wp]::Glow($b, ($x0 + $x1) / 2, $y1 + $CH * 0.01, $CW * 0.09, 6)
 Save-Wallpaper $b "06-monolith" 4 | Out-Null
@@ -351,14 +362,14 @@ $wedge = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.Pix
 $wg = New-G $wedge
 $poly = New-Object System.Drawing.Drawing2D.GraphicsPath
 $poly.AddPolygon([System.Drawing.PointF[]]@(
-  (New-Object System.Drawing.PointF 0, ([single]($CH * -0.05))),
-  (New-Object System.Drawing.PointF ([single]$CW), ([single]($CH * 0.38))),
-  (New-Object System.Drawing.PointF ([single]$CW), ([single]($CH * 0.66))),
-  (New-Object System.Drawing.PointF 0, ([single]($CH * 0.23)))
+  (New-Object System.Drawing.PointF 0, ([single]($CH * 0.20))),
+  (New-Object System.Drawing.PointF ([single]$CW), ([single]($CH * 0.60))),
+  (New-Object System.Drawing.PointF ([single]$CW), ([single]($CH * 0.72))),
+  (New-Object System.Drawing.PointF 0, ([single]($CH * 0.32)))
 ))
-$wg.FillPath((New-Object System.Drawing.SolidBrush (C 12 255)), $poly)
+$wg.FillPath((New-Object System.Drawing.SolidBrush (C 30 255)), $poly)
 $wg.Dispose(); $poly.Dispose()
-$softW = [Wp]::Blur($wedge, 24)
+$softW = [Wp]::Blur($wedge, 30)
 $wedge.Dispose()
 $g = New-G $b
 $g.DrawImage($softW, 0, 0)
@@ -366,7 +377,7 @@ $g.Dispose(); $softW.Dispose()
 
 $g = New-G $b
 $line = New-Pen 70 1.1
-$g.DrawLine($line, [single]0, [single]($CH * 0.09), [single]$CW, [single]($CH * 0.52))
+$g.DrawLine($line, [single]0, [single]($CH * 0.262), [single]$CW, [single]($CH * 0.662))
 $line.Dispose()
 Add-Dust $g 180 1.2 70
 $g.Dispose()
@@ -381,9 +392,9 @@ $b = New-Bg 26 6 @(0.55, 0.46, 0.42, 16) @(0.55, 0.5, 0.16, 12) @(0, 0, 1, 0) 0.
 $g = New-G $b
 
 $plates = @(
-  @{ a = 42; sz = 0.325; dx = -0.035; dy = 0.03; fill = 12; edge = 165 },
-  @{ a = 16; sz = 0.275; dx = 0.035; dy = -0.02; fill = 9; edge = 195 },
-  @{ a = 0; sz = 0.225; dx = -0.012; dy = 0.0; fill = 6; edge = 225 }
+  @{ a = 42; sz = 0.325; dx = -0.062; dy = 0.05; fill = 15; edge = 185 },
+  @{ a = 16; sz = 0.275; dx = 0.055; dy = -0.035; fill = 11; edge = 210 },
+  @{ a = 0; sz = 0.225; dx = -0.01; dy = 0.0; fill = 8; edge = 238 }
 )
 foreach ($p in $plates) {
   $side = $CW * $p.sz
@@ -392,9 +403,9 @@ foreach ($p in $plates) {
   $g.TranslateTransform([single]$cx2, [single]$cy2)
   $g.RotateTransform([single]$p.a)
   $path = Round-Path (-$side / 2) (-$side / 2) $side $side ($side * 0.16)
-  $fb = New-Object System.Drawing.SolidBrush (C $p.fill 255)
-  $g.FillPath($fb, $path)
-  $fb.Dispose()
+  $fg = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.RectangleF ([single](-$side / 2)), ([single](-$side / 2)), ([single]$side), ([single]$side)), (C ([int]($p.fill * 1.8)) 255), (C ([int]($p.fill * 0.35)) 255), ([single]90)
+  $g.FillPath($fg, $path)
+  $fg.Dispose()
   $pen = New-Pen $p.edge 2.0
   $g.DrawPath($pen, $path)
   $pen.Dispose()
@@ -451,6 +462,10 @@ Save-Wallpaper $b "10-beacon" 4 | Out-Null
 $b.Dispose()
 
 Write-Output "done -> $OutDir"
+
+
+
+
 
 
 
