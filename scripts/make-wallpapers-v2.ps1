@@ -228,9 +228,14 @@ $pgb.SurroundColors = @((C 255 3))
 $g.FillPath($pgb, $sphere)
 $pgb.Dispose(); $sphere.Dispose()
 
-for ($i = 0; $i -lt 7; $i++) {
-  $pen = New-Pen (215 - $i * 26) (3.4 - $i * 0.35)
-  $g.DrawArc($pen, [single]($cx - $rad), [single]($cy - $rad), [single]($rad * 2), [single]($rad * 2), 178, 150)
+$rimLayers = @(
+  @(178, 150, 58, 2.2),
+  @(200, 106, 132, 2.9),
+  @(226, 54, 228, 3.6)
+)
+foreach ($rl in $rimLayers) {
+  $pen = New-Pen $rl[2] $rl[3]
+  $g.DrawArc($pen, [single]($cx - $rad), [single]($cy - $rad), [single]($rad * 2), [single]($rad * 2), $rl[0], $rl[1])
   $pen.Dispose()
 }
 $g.Dispose()
@@ -246,11 +251,6 @@ $gc.SetClip($clip)
 $gc.DrawImage($inner, 0, 0)
 $gc.Dispose(); $clip.Dispose(); $inner.Dispose()
 
-$g = New-G $b
-$fo = New-Pen 14 1.2
-$g.DrawEllipse($fo, [single]($cx - $rad * 1.42), [single]($cy - $rad * 1.42), [single]($rad * 2.84), [single]($rad * 2.84))
-$fo.Dispose()
-$g.Dispose()
 Save-Wallpaper $b "05-eclipse" 4 | Out-Null
 $b.Dispose()
 
@@ -331,10 +331,10 @@ function Add-Band($bmp, [double]$yBase, [double]$amp, [double]$phase, [int]$peak
   $path.Dispose()
 }
 
-Add-Band $b 0.30 0.06 0.4 150 0.20 12
-Add-Band $b 0.46 0.075 2.0 130 0.16 12
-Add-Band $b 0.62 0.055 3.4 115 0.22 12
-Add-Band $b 0.78 0.065 4.9 95 0.14 12
+Add-Band $b 0.30 0.06 0.4 195 0.20 10
+Add-Band $b 0.46 0.075 2.0 170 0.16 10
+Add-Band $b 0.62 0.055 3.4 150 0.22 10
+Add-Band $b 0.78 0.065 4.9 128 0.14 10
 $g = New-G $b
 Add-Dust $g 140 1.1 60
 $g.Dispose()
@@ -361,23 +361,24 @@ $g.Dispose()
 $wedge = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
 $wg = New-G $wedge
 $poly = New-Object System.Drawing.Drawing2D.GraphicsPath
+$bx = 120
 $poly.AddPolygon([System.Drawing.PointF[]]@(
-  (New-Object System.Drawing.PointF 0, ([single]($CH * 0.20))),
-  (New-Object System.Drawing.PointF ([single]$CW), ([single]($CH * 0.60))),
-  (New-Object System.Drawing.PointF ([single]$CW), ([single]($CH * 0.72))),
-  (New-Object System.Drawing.PointF 0, ([single]($CH * 0.32)))
+  (New-Object System.Drawing.PointF (-$bx), ([single]($CH * 0.2115))),
+  (New-Object System.Drawing.PointF ([single]($CW + $bx)), ([single]($CH * 0.6485))),
+  (New-Object System.Drawing.PointF ([single]($CW + $bx)), ([single]($CH * 0.6955))),
+  (New-Object System.Drawing.PointF (-$bx), ([single]($CH * 0.2585)))
 ))
-$wg.FillPath((New-Object System.Drawing.SolidBrush (C 30 255)), $poly)
+$wg.FillPath((New-Object System.Drawing.SolidBrush (C 26 255)), $poly)
 $wg.Dispose(); $poly.Dispose()
-$softW = [Wp]::Blur($wedge, 30)
+$softW = [Wp]::Blur($wedge, 34)
 $wedge.Dispose()
 $g = New-G $b
 $g.DrawImage($softW, 0, 0)
 $g.Dispose(); $softW.Dispose()
 
 $g = New-G $b
-$line = New-Pen 70 1.1
-$g.DrawLine($line, [single]0, [single]($CH * 0.262), [single]$CW, [single]($CH * 0.662))
+$line = New-Pen 54 1.0
+$g.DrawLine($line, [single]0, [single]($CH * 0.2585), [single]$CW, [single]($CH * 0.6485))
 $line.Dispose()
 Add-Dust $g 180 1.2 70
 $g.Dispose()
