@@ -276,25 +276,31 @@ $rr = $CW * 0.005
 $slab = Round-Path $x0 $y0 ($x1 - $x0) ($y1 - $y0) $rr
 $rect = New-Object System.Drawing.RectangleF ([single]$x0), ([single]$y0), ([single]($x1 - $x0)), ([single]($y1 - $y0))
 $lg = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 255 78), (C 255 16), ([single]74)
-$g.FillPath($lg, $slab)
+$slabLayer = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$sg = New-G $slabLayer
+$sg.FillPath($lg, $slab)
 $lg.Dispose()
 
-$gs = $g.Save()
-$g.SetClip($slab)
+$gs = $sg.Save()
+$sg.SetClip($slab)
 $sh = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 0 255), (C 0 255), ([single]90)
 $shc = New-Object System.Drawing.Drawing2D.ColorBlend 3
-$shc.Colors = @((C 26 255), (C 6 255), (C 0 255))
+$shc.Colors = @((C 30 255), (C 7 255), (C 0 255))
 $shc.Positions = @([single]0, ([single]0.30), [single]1)
 $sh.InterpolationColors = $shc
-$g.FillRectangle($sh, $rect)
+$sg.FillRectangle($sh, $rect)
 $sh.Dispose()
-$g.Restore($gs)
+$sg.Restore($gs)
 
 $ins = $CW * 0.004
 $inSlab = Round-Path ($x0 + $ins) ($y0 + $ins) ($x1 - $x0 - $ins * 2) ($y1 - $y0 - $ins * 2) ($rr * 0.8)
 $inPen = New-Pen 26 1.2
-$g.DrawPath($inPen, $inSlab)
+$sg.DrawPath($inPen, $inSlab)
 $inPen.Dispose(); $inSlab.Dispose()
+$sg.Dispose()
+[Wp]::Grain($slabLayer, 6, 77)
+$g.DrawImage($slabLayer, 0, 0)
+$slabLayer.Dispose()
 $slab.Dispose()
 
 $edge = New-Pen 245 3.4
@@ -308,19 +314,8 @@ $g.DrawLine($edge3, [single]$x1, [single]$y0, [single]$x1, [single]$y1)
 $edge3.Dispose()
 $g.Dispose()
 
-$reflH = ($y1 - $y0) * 0.42
-$refl = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-$rg = New-G $refl
-$rrect = New-Object System.Drawing.RectangleF ([single]$x0), ([single]$y1), ([single]($x1 - $x0)), ([single]$reflH)
-$rbr = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rrect, (C 16 255), (C 0 255), ([single]90)
-$rg.FillRectangle($rbr, $rrect)
-$rbr.Dispose()
-$rg.Dispose()
-$softR = [Wp]::Blur($refl, 40)
-$refl.Dispose()
-$g = New-G $b
-$g.DrawImage($softR, 0, 0)
-$g.Dispose(); $softR.Dispose()
+[Wp]::Glow($b, ($x0 + $x1) / 2, $y1 + $CH * 0.015, ($x1 - $x0) * 0.9, 7)
+[Wp]::Glow($b, ($x0 + $x1) / 2, $y1 + $CH * 0.05, ($x1 - $x0) * 1.6, 3)
 
 [Wp]::Glow($b, $x0 - $CW * 0.01, ($y0 + $y1) / 2, ($y1 - $y0) * 0.55, 10)
 [Wp]::Glow($b, $x0, ($y0 + $y1) / 2, ($y1 - $y0) * 0.30, 12)
@@ -411,14 +406,14 @@ $bY0 = $CH * 0.2585; $bY1 = $CH * 0.6485
 $slp = ($bY1 - $bY0) / $CW
 $nrm = [Math]::Sqrt(1 + $slp * $slp)
 $px0 = -$slp / $nrm; $py0 = 1 / $nrm
-$halfL = $CH * 0.030
-for ($t = 0.045; $t -lt 0.96; $t += 0.032) {
+$halfL = $CH * 0.024
+for ($t = 0.045; $t -lt 0.96; $t += 0.042) {
   $tx = $t * $CW; $ty = $bY0 + $t * ($bY1 - $bY0)
-  $pen = New-Pen 30 1.0
+  $pen = New-Pen 20 1.0
   $g.DrawLine($pen, [single]($tx + $px0 * $halfL), [single]($ty + $py0 * $halfL), [single]($tx - $px0 * $halfL), [single]($ty - $py0 * $halfL))
   $pen.Dispose()
-  $pen = New-Pen 14 0.8
-  $g.DrawLine($pen, [single]($tx + $px0 * $halfL * 1.7), [single]($ty + $py0 * $halfL * 1.7), [single]($tx - $px0 * $halfL * 1.7), [single]($ty - $py0 * $halfL * 1.7))
+  $pen = New-Pen 9 0.8
+  $g.DrawLine($pen, [single]($tx + $px0 * $halfL * 1.6), [single]($ty + $py0 * $halfL * 1.6), [single]($tx - $px0 * $halfL * 1.6), [single]($ty - $py0 * $halfL * 1.6))
   $pen.Dispose()
 }
 $g.Dispose()
@@ -455,7 +450,7 @@ $b.Dispose()
 # 09 prism — stacked glass plates
 # --------------------------------------------------------------------------
 $b = New-Bg 26 6 @(0.55, 0.46, 0.42, 16) @(0.55, 0.5, 0.16, 12) @(0, 0, 1, 0) 0.32
-[Wp]::Glow($b, $CW * 0.55, $CH * 0.50, $CW * 0.30, 16)
+[Wp]::Glow($b, $CW * 0.55, $CH * 0.50, $CW * 0.30, 12)
 $g = New-G $b
 
 $plates = @(
@@ -479,7 +474,7 @@ foreach ($p in $plates) {
   $g.SetClip($path)
   $sb = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 0 255), (C 0 255), ([single]48)
   $sbc = New-Object System.Drawing.Drawing2D.ColorBlend 4
-  $sbc.Colors = @((C 0 255), (C 14 255), (C 24 255), (C 0 255))
+  $sbc.Colors = @((C 0 255), (C 9 255), (C 16 255), (C 0 255))
   $sbc.Positions = @([single]0, ([single]0.40), ([single]0.50), [single]1)
   $sb.InterpolationColors = $sbc
   $g.FillRectangle($sb, $rect)
@@ -503,7 +498,7 @@ foreach ($p in $plates) {
     $halo = New-Object System.Drawing.Drawing2D.GraphicsPath
     $halo.AddEllipse([single](-0.40 * $s), [single](-0.40 * $s), [single](0.80 * $s), [single](0.80 * $s))
     $hbr = New-Object System.Drawing.Drawing2D.PathGradientBrush $halo
-    $hbr.CenterColor = (C 34 255)
+    $hbr.CenterColor = (C 22 255)
     $hbr.SurroundColors = @((C 0 255))
     $g.FillPath($hbr, $halo)
     $hbr.Dispose(); $halo.Dispose()
@@ -551,7 +546,7 @@ foreach ($p in $plates) {
 }
 $g.Dispose()
 
-[Wp]::Glow($b, $CW * 0.55, $CH * 0.50, $CW * 0.18, 10)
+[Wp]::Glow($b, $CW * 0.55, $CH * 0.50, $CW * 0.18, 7)
 $g = New-G $b
 Add-Dust $g 150 1.2 70
 $g.Dispose()
