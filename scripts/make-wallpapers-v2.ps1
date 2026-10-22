@@ -238,7 +238,17 @@ foreach ($rl in $rimLayers) {
   $g.DrawArc($pen, [single]($cx - $rad), [single]($cy - $rad), [single]($rad * 2), [single]($rad * 2), $rl[0], $rl[1])
   $pen.Dispose()
 }
+foreach ($gr in @(@(1.30, 26, 66), @(1.54, 15, 40))) {
+  $r2 = $rad * $gr[0]
+  $p1 = New-Pen $gr[1] 2.6
+  $g.DrawArc($p1, [single]($cx - $r2), [single]($cy - $r2), [single]($r2 * 2), [single]($r2 * 2), 196, 120)
+  $p1.Dispose()
+  $p2 = New-Pen $gr[2] 1.2
+  $g.DrawArc($p2, [single]($cx - $r2), [single]($cy - $r2), [single]($r2 * 2), [single]($r2 * 2), 218, 78)
+  $p2.Dispose()
+}
 $g.Dispose()
+[Wp]::Glow($b, $cx - $rad * 0.72, $cy - $rad * 0.72, $rad * 1.55, 5)
 [Wp]::Glow($b, $cx - $rad * 0.62, $cy - $rad * 0.78, $rad * 0.30, 34)
 [Wp]::Glow($b, $cx - $rad * 0.62, $cy - $rad * 0.78, $rad * 0.60, 12)
 $inner = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
@@ -269,6 +279,23 @@ $lg = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 255 78),
 $g.FillPath($lg, $slab)
 $lg.Dispose()
 
+$gs = $g.Save()
+$g.SetClip($slab)
+$sh = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, (C 0 255), (C 0 255), ([single]90)
+$shc = New-Object System.Drawing.Drawing2D.ColorBlend 3
+$shc.Colors = @((C 26 255), (C 6 255), (C 0 255))
+$shc.Positions = @([single]0, ([single]0.30), [single]1)
+$sh.InterpolationColors = $shc
+$g.FillRectangle($sh, $rect)
+$sh.Dispose()
+$g.Restore($gs)
+
+$ins = $CW * 0.004
+$inSlab = Round-Path ($x0 + $ins) ($y0 + $ins) ($x1 - $x0 - $ins * 2) ($y1 - $y0 - $ins * 2) ($rr * 0.8)
+$inPen = New-Pen 26 1.2
+$g.DrawPath($inPen, $inSlab)
+$inPen.Dispose(); $inSlab.Dispose()
+$slab.Dispose()
 
 $edge = New-Pen 245 3.4
 $g.DrawLine($edge, [single]$x0, [single]$y0, [single]$x0, [single]$y1)
@@ -280,6 +307,20 @@ $edge3 = New-Pen 34 2.0
 $g.DrawLine($edge3, [single]$x1, [single]$y0, [single]$x1, [single]$y1)
 $edge3.Dispose()
 $g.Dispose()
+
+$reflH = ($y1 - $y0) * 0.42
+$refl = New-Object System.Drawing.Bitmap $CW, $CH, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$rg = New-G $refl
+$rrect = New-Object System.Drawing.RectangleF ([single]$x0), ([single]$y1), ([single]($x1 - $x0)), ([single]$reflH)
+$rbr = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rrect, (C 16 255), (C 0 255), ([single]90)
+$rg.FillRectangle($rbr, $rrect)
+$rbr.Dispose()
+$rg.Dispose()
+$softR = [Wp]::Blur($refl, 40)
+$refl.Dispose()
+$g = New-G $b
+$g.DrawImage($softR, 0, 0)
+$g.Dispose(); $softR.Dispose()
 
 [Wp]::Glow($b, $x0 - $CW * 0.01, ($y0 + $y1) / 2, ($y1 - $y0) * 0.55, 10)
 [Wp]::Glow($b, $x0, ($y0 + $y1) / 2, ($y1 - $y0) * 0.30, 12)
@@ -328,6 +369,14 @@ function Add-Band($bmp, [double]$yBase, [double]$amp, [double]$phase, [int]$peak
   $gg.DrawCurve($pen, [System.Drawing.PointF[]]$pts, 0.5)
   $pen.Dispose()
   $gg.Dispose()
+
+  $off = @()
+  foreach ($pt in $pts) { $off += New-Object System.Drawing.PointF $pt.X, ([single]($pt.Y + $thick * $CH * 0.58)) }
+  $gg = New-G $bmp
+  $pen2 = New-Pen ([int]($peak * 0.28)) 1.0
+  $gg.DrawCurve($pen2, [System.Drawing.PointF[]]$off, 0.5)
+  $pen2.Dispose()
+  $gg.Dispose()
   $path.Dispose()
 }
 
@@ -335,6 +384,7 @@ Add-Band $b 0.30 0.06 0.4 195 0.20 10
 Add-Band $b 0.46 0.075 2.0 170 0.16 10
 Add-Band $b 0.62 0.055 3.4 150 0.22 10
 Add-Band $b 0.78 0.065 4.9 128 0.14 10
+[Wp]::Glow($b, $CW * 0.16, $CH * 0.10, $CW * 0.52, 6)
 $g = New-G $b
 Add-Dust $g 140 1.1 60
 $g.Dispose()
@@ -354,6 +404,21 @@ for ($i = 1; $i -le 18; $i++) {
   if ($a -lt 7) { $a = 7 }
   $pen = New-Pen $a (1.5 - $i * 0.02)
   $g.DrawEllipse($pen, [single]($ccx - $r), [single]($ccy - $r * 0.80), [single]($r * 2), [single]($r * 1.60))
+  $pen.Dispose()
+}
+
+$bY0 = $CH * 0.2585; $bY1 = $CH * 0.6485
+$slp = ($bY1 - $bY0) / $CW
+$nrm = [Math]::Sqrt(1 + $slp * $slp)
+$px0 = -$slp / $nrm; $py0 = 1 / $nrm
+$halfL = $CH * 0.030
+for ($t = 0.045; $t -lt 0.96; $t += 0.032) {
+  $tx = $t * $CW; $ty = $bY0 + $t * ($bY1 - $bY0)
+  $pen = New-Pen 30 1.0
+  $g.DrawLine($pen, [single]($tx + $px0 * $halfL), [single]($ty + $py0 * $halfL), [single]($tx - $px0 * $halfL), [single]($ty - $py0 * $halfL))
+  $pen.Dispose()
+  $pen = New-Pen 14 0.8
+  $g.DrawLine($pen, [single]($tx + $px0 * $halfL * 1.7), [single]($ty + $py0 * $halfL * 1.7), [single]($tx - $px0 * $halfL * 1.7), [single]($ty - $py0 * $halfL * 1.7))
   $pen.Dispose()
 }
 $g.Dispose()
@@ -382,6 +447,7 @@ $g.DrawLine($line, [single]0, [single]($CH * 0.2585), [single]$CW, [single]($CH 
 $line.Dispose()
 Add-Dust $g 180 1.2 70
 $g.Dispose()
+[Wp]::Glow($b, $ccx, $ccy, $CW * 0.15, 7)
 Save-Wallpaper $b "08-contour" 4 | Out-Null
 $b.Dispose()
 
@@ -521,6 +587,8 @@ $g.Dispose(); $softB.Dispose()
 
 [Wp]::Glow($b, $CW * 0.36, $CH * 0.50, $CW * 0.22, 16)
 [Wp]::Glow($b, $CW * 0.36, $CH * 0.50, $CW * 0.07, 24)
+[Wp]::Glow($b, $CW * 0.545, $CH * 0.93, $CW * 0.30, 7)
+[Wp]::Glow($b, $CW * 0.245, $CH * 0.11, $CW * 0.26, 5)
 
 $g = New-G $b
 $core = New-Pen 120 1.4
