@@ -37,6 +37,32 @@ try {
   $asset = Join-Path $repo 'dist\aurora-dock.slu'
   if (-not (Test-Path $asset)) { throw 'dist/aurora-dock.slu was not created' }
 
+  # Wallpaper bundle: full-resolution JPGs + previews + the apply helper.
+  $zip = Join-Path $repo 'dist\aurora-dock-wallpapers.zip'
+  if (Test-Path $zip) { Remove-Item $zip -Force }
+  $stage = Join-Path $repo 'dist\wallpapers'
+  if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
+  New-Item -ItemType Directory -Path $stage | Out-Null
+  Copy-Item (Join-Path $repo 'wallpapers\*.jpg') $stage -Force
+  Copy-Item (Join-Path $repo 'wallpapers\previews') $stage -Recurse -Force
+  Copy-Item (Join-Path $PSScriptRoot 'apply-wallpaper.ps1') $stage -Force
+  Set-Content -LiteralPath (Join-Path $stage 'README.txt') -Encoding ASCII -Value @(
+    'Aurora Dock - light studies, 3840x2160 JPG.',
+    '',
+    'Apply one with:',
+    '  powershell -File apply-wallpaper.ps1 09-prism',
+    '  powershell -File apply-wallpaper.ps1 11-paper -Position Span',
+    '',
+    'Dark:  01-seam 02-orb 03-dunes 04-lattice 05-eclipse',
+    '       06-monolith 07-silk 08-contour 09-prism 10-beacon',
+    'Light: 11-paper 12-mist',
+    '',
+    'If the desktop turns black, that is Seelen''s wallpaper layer, not the',
+    'image: disable @seelen/wallpaper-manager in Seelen settings, then restart.'
+  )
+  Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
+  Remove-Item $stage -Recurse -Force
+
   if ($DryRun) {
     Write-Output "dry run: would release v$version with $asset"
     return
@@ -59,7 +85,7 @@ try {
     if (-not $pushed) { throw 'git push failed after 3 attempts' }
   }
 
-  gh release create "v$version" $asset --title "Aurora Dock v$version" --generate-notes
+  gh release create "v$version" $asset $zip --title "Aurora Dock v$version" --generate-notes
   if ($LASTEXITCODE -ne 0) { throw "gh release create failed with exit code $LASTEXITCODE" }
 
   git tag "v$version" 2>$null

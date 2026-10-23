@@ -3,3 +3,5 @@
 *.bak
 Thumbs.db
 desktop.ini
+dist/*.yml
+dist/*.zip

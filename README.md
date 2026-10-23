@@ -10,7 +10,7 @@
 | المسار | الوصف |
 | --- | --- |
 | `aurora-dock/` | الثيم نفسه (`metadata.yml` + `styles/*.scss` لكل وجت). |
-| `wallpapers/` | 4 خلفيات مونوكروم 3840×2160 (JPG) + معاينات. |
+| `wallpapers/` | 12 خلفية مونوكروم 3840×2160 (JPG) + معاينات. |
 | `iconpack/` | حزمة أيقونات رمادية لتطبيقات الدوك (`@user/aurora-mono`). |
 | `scripts/` | بناء الحزمة، الإصدار، الخلفيات، حزمة الأيقونات، مزامنة التراي. |
 | `dist/aurora-dock.slu` | الحزمة الجاهزة للتركيب (ناتج البناء). |
@@ -67,11 +67,39 @@
 
 ## الخلفيات
 
-`wallpapers/*.jpg` بدقة 3840×2160، وتُعاد توليدها بـ:
+مجموعة **«دراسات ضوء»**: كل خلفية دراسة لشكل ضوء واحد على سطح مطفي، داخل نطاق سطوع
+واحد — لا أبيض محروق ولا أسود كامل (أدنى درجة ≈ 26/255)، مع حبيبات فيلمية ناعمة
+ومقاومة للـbanding.
+
+| داكنة | | | |
+| --- | --- | --- | --- |
+| `01-seam` درز ضوء | `02-orb` كرة ضوء | `03-dunes` كثبان | `04-lattice` شبكة نقط |
+| `05-eclipse` كسوف | `06-monolith` لوح | `07-silk` حرير | `08-contour` كنتور |
+| `09-prism` ألواح زجاج | `10-beacon` عمود ضوء | | |
+
+| فاتحة | |
+| --- | --- |
+| `11-paper` ورق بثنية | `12-mist` ضباب وأفق |
+
+المعاينات في `wallpapers/previews/` (و`00-set.jpg` لوحة تجميعية).
+
+**تطبيق خلفية** (يحترم الشاشتين):
 
 ```powershell
-powershell -File scripts/make-wallpapers.ps1
+powershell -File scripts/apply-wallpaper.ps1 09-prism
+powershell -File scripts/apply-wallpaper.ps1 11-paper -Position Span
 ```
+
+**إعادة التوليد** (numpy + Pillow، حوالي 40 ثانية):
+
+```powershell
+python scripts/make-wallpapers-v3.py
+python scripts/make-wallpapers-v3.py --only 05,09
+```
+
+> إن ظهرت خلفية سوداء على سطح المكتب، فهي طبقة Seelen وليست الصورة:
+> عطّل `@seelen/wallpaper-manager` من إعدادات Seelen (أو اجعل `defaultCollection` فارغاً)
+> وأعد تشغيل Seelen.
 
 ## حزمة الأيقونات
 
@@ -89,7 +117,7 @@ powershell -File scripts/build-iconpack.ps1 -Install
 # حزمة .slu فقط
 python scripts/build-slu.py
 
-# إصدار كامل: بناء + commit + push + GitHub Release + tag
+# إصدار كامل: بناء .slu + حزمة الخلفيات + commit + push + GitHub Release + tag
 powershell -File scripts/release.ps1            # أضف -DryRun للمعاينة
 ```
 
