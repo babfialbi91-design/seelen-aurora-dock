@@ -503,38 +503,53 @@ foreach ($p in $plates) {
     $g.FillPath($hbr, $halo)
     $hbr.Dispose(); $halo.Dispose()
 
-    $arcHalo = $null
-    $markW = $s * 0.036
-    $leftLeg = [System.Drawing.PointF[]]@(
-      (New-Object System.Drawing.PointF ([single](-0.205 * $s)), ([single](0.258 * $s))),
-      (New-Object System.Drawing.PointF ([single](0.013 * $s)), ([single](-0.352 * $s)))
-    )
-    $rightLeg = [System.Drawing.PointF[]]@(
-      (New-Object System.Drawing.PointF ([single](0.205 * $s)), ([single](0.258 * $s))),
-      (New-Object System.Drawing.PointF ([single](-0.013 * $s)), ([single](-0.352 * $s)))
-    )
-    $shadowPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(58, 0, 0, 0)), ([single]($markW * 1.7))
-    $shadowPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-    $shadowPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $cr = 0.290 * $s
+    $dd = 0.046 * $s
+    $hh = [Math]::Sqrt([Math]::Max(0.0, $cr * $cr - $dd * $dd / 4))
+    $thUp = [Math]::Atan2($hh, $dd / 2)
+    $thLo = 2 * [Math]::PI - $thUp
+    $phUp = [Math]::Atan2($hh, $dd / 2 - $dd)
+    $phLo = 2 * [Math]::PI - $phUp
+    $rot = 24 * [Math]::PI / 180
+    $cA = [Math]::Cos($rot); $sA = [Math]::Sin($rot)
+
+    $lune = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $pts = New-Object System.Collections.Generic.List[System.Drawing.PointF]
+    for ($i = 0; $i -le 200; $i++) {
+      $t = $thUp + ($thLo - $thUp) * ($i / 200.0)
+      $px = $cr * [Math]::Cos($t) - $dd / 2
+      $py = -$cr * [Math]::Sin($t)
+      $pts.Add((New-Object System.Drawing.PointF ([single]($px * $cA - $py * $sA)), ([single]($px * $sA + $py * $cA))))
+    }
+    for ($i = 0; $i -le 200; $i++) {
+      $t = $phLo + ($phUp - $phLo) * ($i / 200.0)
+      $px = $dd + $cr * [Math]::Cos($t) - $dd / 2
+      $py = -$cr * [Math]::Sin($t)
+      $pts.Add((New-Object System.Drawing.PointF ([single]($px * $cA - $py * $sA)), ([single]($px * $sA + $py * $cA))))
+    }
+    $lune.AddPolygon($pts.ToArray())
+
+    $dotR = 0.020 * $s
+    $dotX = ($dd * 0.5 + 0.155 * $s) - $dd / 2
+    $dx2 = $dotX * $cA
+    $dy2 = $dotX * $sA
+
     $st2 = $g.Save()
-    $g.TranslateTransform([single]($s * 0.006), [single]($s * 0.009))
-    $g.DrawLines($shadowPen, $leftLeg)
-    $g.DrawLines($shadowPen, $rightLeg)
+    $g.TranslateTransform([single]($s * 0.005), [single]($s * 0.008))
+    $shBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(52, 0, 0, 0))
+    $g.FillPath($shBrush, $lune)
+    $g.FillEllipse($shBrush, [single]($dx2 - $dotR), [single]($dy2 - $dotR), [single]($dotR * 2), [single]($dotR * 2))
+    $shBrush.Dispose()
     $g.Restore($st2)
-    $shadowPen.Dispose()
 
-    $markPen = New-Pen 196 $markW
-    $g.DrawLines($markPen, $leftLeg)
-    $g.DrawLines($markPen, $rightLeg)
-
-    $bar = [System.Drawing.PointF[]]@(
-      (New-Object System.Drawing.PointF ([single](-0.096 * $s)), ([single](0.092 * $s))),
-      (New-Object System.Drawing.PointF ([single](0.096 * $s)), ([single](0.092 * $s)))
-    )
-    $barPen = New-Pen 132 ($markW * 0.92)
-    $g.DrawLines($barPen, $bar)
-    $barPen.Dispose()
-    $markPen.Dispose()
+    $markBrush = New-Object System.Drawing.SolidBrush (C 198 255)
+    $g.FillPath($markBrush, $lune)
+    $g.FillEllipse($markBrush, [single]($dx2 - $dotR), [single]($dy2 - $dotR), [single]($dotR * 2), [single]($dotR * 2))
+    $dotBrush = New-Object System.Drawing.SolidBrush (C 225 255)
+    $g.FillEllipse($dotBrush, [single]($dx2 - $dotR * 0.72), [single]($dy2 - $dotR * 0.72), [single]($dotR * 1.44), [single]($dotR * 1.44))
+    $dotBrush.Dispose()
+    $markBrush.Dispose()
+    $lune.Dispose()
   }
 
   $path.Dispose()
