@@ -425,6 +425,34 @@ def s10_beacon() -> np.ndarray:
     return f
 
 
+
+def s11_paper() -> np.ndarray:
+    """A sheet of pale paper with one soft fold across it."""
+    f = sky(0.870, 0.775, [(0.20, 0.12, 0.55, 0.045)], 0.08)
+    ang = math.radians(68.0)
+    u = (XS - 0.46 * W) * math.cos(ang) + (YS - 0.50 * H) * math.sin(ang)
+    crease = np.exp(-0.5 * (u / 26.0) ** 2).astype(np.float32)
+    f -= sstep(0.0, 1.0, np.clip(u / (W * 0.42), 0.0, 1.0)) * 0.045
+    f += crease * 0.030
+    f += blur(crease, 2.0) * 0.020
+    f += gauss2(0.80 * W, 0.86 * H, 0.40 * W, 0.26 * H) * 0.028
+    f -= blur_big(gauss2(0.16 * W, 0.20 * H, 0.30 * W), 70.0) * 0.018
+    return f
+
+
+def s12_mist() -> np.ndarray:
+    """Pale mist over a soft dark horizon."""
+    f = sky(0.900, 0.640, [(0.28, 0.70, 0.55, 0.060)], 0.08)
+    edge = (0.560 + 0.030 * np.sin(TAU * (0.60 * XN + 0.15))) * H
+    below = sstep(-2.0, 2.0, YS - edge)
+    f = f * (1.0 - below) + below * (0.455 - 0.075 * sstep(0.56, 1.0, YN))
+    haze = np.exp(-0.5 * ((YS - edge) / (H * 0.045)) ** 2).astype(np.float32)
+    f += blur(haze, 20.0) * 0.090
+    f += gauss2(0.74 * W, 0.30 * H, 0.30 * W, 0.22 * H) * 0.035
+    return f
+
+
+
 SCENES = {
     "01-seam": s01_seam,
     "02-orb": s02_orb,
@@ -436,6 +464,8 @@ SCENES = {
     "08-contour": s08_contour,
     "09-prism": s09_prism,
     "10-beacon": s10_beacon,
+    "11-paper": s11_paper,
+    "12-mist": s12_mist,
 }
 
 
