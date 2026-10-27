@@ -3,6 +3,8 @@
 هوية **أحادية اللون** لـ Seelen UI: زجاج داكن/فاتح، لمعات بيضاء فقط، وحركات هادئة.
 يعمل على Windows 10 و 11 مع Seelen UI 2.8.x.
 
+> **الموقع:** [aurora-dock.babfialbi91.workers.dev](https://aurora-dock.babfialbi91.workers.dev) — زر تحميل يجلب أحدث `.slu` مباشرة.
+
 ![dock](docs/screenshots/dock-dark.png)
 
 ## المحتويات
