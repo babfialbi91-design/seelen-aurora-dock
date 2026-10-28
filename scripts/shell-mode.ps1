@@ -40,6 +40,7 @@ $SeelenSettings = Join-Path $env:APPDATA 'com.seelen.seelen-ui\settings.json'
 $StateDir = Join-Path $env:LOCALAPPDATA 'aurora-dock'
 $StateFile = Join-Path $StateDir 'shell-state.json'
 $StuckRects = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3'
+$SeelenAppId = 'Seelen.SeelenUI_p6yyn03m1894e!App'
 
 Add-Type -TypeDefinition @'
 using System;
@@ -130,9 +131,17 @@ function Stop-Seelen {
   $proc = Get-Process -Name 'seelen-ui' -ErrorAction SilentlyContinue
   if (-not $proc) { return $false }
   $proc | Stop-Process -Force
-  # Seelen relaunches itself from its startup entry within ~45s.
   Start-Sleep -Seconds 2
   return $true
+}
+
+function Start-Seelen {
+  if (Get-Process -Name 'seelen-ui' -ErrorAction SilentlyContinue) { return }
+  Start-Process -FilePath 'explorer.exe' -ArgumentList ("shell:AppsFolder\" + $SeelenAppId)
+  for ($i = 0; $i -lt 20; $i++) {
+    Start-Sleep -Milliseconds 500
+    if (Get-Process -Name 'seelen-ui' -ErrorAction SilentlyContinue) { break }
+  }
 }
 
 $seelen = Read-Json $SeelenSettings
@@ -153,6 +162,8 @@ if ($Undo) {
     [Aurora.Shell]::Hide('Shell_SecondaryTrayWnd', $false)
     if ($snap.taskbarSettings) { Set-TaskbarSetting $snap.taskbarSettings }
   }
+
+  if (-not $DryRun) { Stop-Seelen | Out-Null }
 
   if ($snap.seelen) {
     Write-Host 'Restoring Seelen widget settings...'
@@ -177,7 +188,7 @@ if ($Undo) {
 
   if (-not $NoRestart -and -not $DryRun) {
     Write-Host 'Restarting Seelen UI...'
-    Stop-Seelen | Out-Null
+    Start-Seelen
   }
 
   Write-Host 'Shell mode off. Taskbar restored.' -ForegroundColor Green
@@ -230,7 +241,11 @@ if ($bar) {
   }
 }
 
-if ($changed -and -not $DryRun) { Write-Json $SeelenSettings $seelen }
+if ($changed -and -not $DryRun) {
+  # Stop first: Seelen rewrites settings.json on exit and would clobber us.
+  Stop-Seelen | Out-Null
+  Write-Json $SeelenSettings $seelen
+}
 
 # --- Windows: park the taskbar.
 Write-Host ("Taskbar before: {0}" -f [Aurora.Shell]::Rect('Shell_TrayWnd'))
@@ -250,7 +265,7 @@ Write-Host ("Auto-hide flag: {0}" -f ($(if ($setting) { 'written' } else { 'unav
 
 if ($changed -and -not $NoRestart -and -not $DryRun) {
   Write-Host 'Restarting Seelen UI to apply the layout...'
-  Stop-Seelen | Out-Null
+  Start-Seelen
 }
 
 Write-Host ''
