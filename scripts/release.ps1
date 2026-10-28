@@ -64,7 +64,9 @@ try {
   Remove-Item $stage -Recurse -Force
 
   if ($DryRun) {
-    Write-Output "dry run: would release v$version with $asset"
+    $notesProbe = Join-Path $repo "docs\release-notes\v$version.md"
+    $probeMsg = if (Test-Path -LiteralPath $notesProbe) { "notes: $notesProbe" } else { 'notes: auto-generated changelog' }
+    Write-Output "dry run: would release v$version with $asset ($probeMsg)"
     return
   }
 
@@ -85,7 +87,17 @@ try {
     if (-not $pushed) { throw 'git push failed after 3 attempts' }
   }
 
-  gh release create "v$version" $asset $zip --title "Aurora Dock v$version" --generate-notes
+  # Hand-written notes win over GitHub's auto-generated changelog: the site
+  # renders this body in the "What's new" cards, and "Full Changelog" alone
+  # reads as an empty card.
+  $notesFile = Join-Path $repo "docs\release-notes\v$version.md"
+  $notesArgs = @('--generate-notes')
+  if (Test-Path -LiteralPath $notesFile) {
+    $notesArgs = @('--notes-file', $notesFile)
+    Write-Output "using release notes: $notesFile"
+  }
+
+  gh release create "v$version" $asset $zip --title "Aurora Dock v$version" @notesArgs
   if ($LASTEXITCODE -ne 0) { throw "gh release create failed with exit code $LASTEXITCODE" }
 
   git tag "v$version" 2>$null

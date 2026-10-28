@@ -14,7 +14,7 @@
 | `aurora-dock/` | الثيم نفسه (`metadata.yml` + `styles/*.scss` لكل وجت). |
 | `wallpapers/` | 12 خلفية مونوكروم 3840×2160 (JPG) + معاينات. |
 | `iconpack/` | حزمة أيقونات رمادية لتطبيقات الدوك (`@user/aurora-mono`). |
-| `scripts/` | بناء الحزمة، الإصدار، الخلفيات، حزمة الأيقونات، مزامنة التراي. |
+| `scripts/` | بناء الحزمة، الإصدار، الخلفيات، حزمة الأيقونات، مزامنة التراي، وضع الدمج، بروفايل البطارية. |
 | `dist/aurora-dock.slu` | الحزمة الجاهزة للتركيب (ناتج البناء). |
 | `docs/screenshots/` | لقطات الوضع الداكن والفاتح. |
 
@@ -42,6 +42,8 @@
 - **Alt+Tab** و**مساحات العمل** بتصميم بطاقات زجاجية موحّد.
 - **إشعارات** ككروت زجاجية بحدّ مضيء وحركة ظهور منزلقة.
 - **العربية**: أرقام جدولية و`unicode-bidi: plaintext` للنصوص المختلطة.
+- **دمج مع شريط ويندوز**: وضع «سطح نظيف» يخفي شريط المهام بهدوء ويترك الحافتين للدوك والشريط العلوي.
+- **بروفايل بطارية**: نفس الهوية بلا ضباب وبحركة هادئة، من أمر واحد.
 
 | داكن | فاتح |
 | --- | --- |
@@ -50,6 +52,39 @@
 
 ![Alt+Tab](docs/screenshots/task-switcher.png)
 ![Workspaces](docs/screenshots/workspaces.png)
+
+## الدمج مع شريط ويندوز
+
+Seelen 2.8 لا يملك موديول taskbar خاصاً به، فـ«الدمج» يعني أن يتولّى الدوك الحافة السفلية
+والشريط العلوي الحافة العليا، وأن يتحوّل شريط ويندوز إلى شريط يُخفى تلقائياً ويعود بحركة
+ناعمة عند لمس الحافة — بلا نافذة مزدوجة ولا شريط مكرّر.
+
+```powershell
+powershell -File scripts/shell-mode.ps1            # إخفاء تلقائي (موصى به)
+powershell -File scripts/shell-mode.ps1 -Mode hide # إخفاء كامل للجلسة
+powershell -File scripts/shell-mode.ps1 -DryRun    # معاينة بلا تغيير
+powershell -File scripts/shell-mode.ps1 -Undo      # استعادة كل شيء
+```
+
+- يحفظ الحالة السابقة في `%LOCALAPPDATA%\aurora-dock\shell-state.json`.
+- يضبط `position`/`margin`/`padding` للدوك والشريط إن انحرفت عن شبكة 8px.
+- لا يمسّ الملفات الشخصية ولا خلفيات النظام.
+
+> بعد الإغلاق المفاجئ لـSeelen استخدم `-Undo` ثم أعد التطبيق: السكربت يحفظ «أقدم» لقطة فقط.
+
+## وضع البطارية
+
+بروفايل اختياري يبقي الأشكال والأيقونات وموجة التكبير، ويلغي ما يستهلك البطارية فقط
+(الضباب، اللمعان المتكرّر، التوهّج):
+
+```powershell
+powershell -File scripts/low-profile.ps1            # low  (ضباب 0، حركة 15%)
+powershell -File scripts/low-profile.ps1 -Profile high
+powershell -File scripts/low-profile.ps1 -Undo      # يعيد القيم السابقة
+```
+
+القيم تُكتب في `settings.json` داخل `byTheme["@asfkep/aurora-dock"]`، ويعيد السكربت تشغيل
+Seelen بعد الكتابة. للعودة يدوياً: من إعدادات الثيم أعد `--ads-fx` إلى 100 و`--ads-blur` إلى 22.
 
 ## الإعدادات
 
@@ -120,6 +155,7 @@ powershell -File scripts/build-iconpack.ps1 -Install
 python scripts/build-slu.py
 
 # إصدار كامل: بناء .slu + حزمة الخلفيات + commit + push + GitHub Release + tag
+# (يستخدم docs/release-notes/vX.Y.Z.md إن وُجد، وإلا changelog تلقائي)
 powershell -File scripts/release.ps1            # أضف -DryRun للمعاينة
 ```
 

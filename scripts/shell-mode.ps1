@@ -74,6 +74,7 @@ namespace Aurora {
     public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
 
     const uint ABM_SETSTATE = 0x0000000A;
+    const uint ABM_GETSTATE = 0x00000004;
     const uint ABS_AUTOHIDE = 0x0001;
     const uint ABS_ALWAYSONTOP = 0x0002;
 
@@ -82,6 +83,13 @@ namespace Aurora {
       d.cbSize = Marshal.SizeOf(typeof(APPBARDATA));
       d.lParam = (IntPtr)(on ? (ABS_AUTOHIDE | ABS_ALWAYSONTOP) : ABS_ALWAYSONTOP);
       SHAppBarMessage(ABM_SETSTATE, ref d);
+    }
+
+    public static bool AutoHide() {
+      APPBARDATA d = new APPBARDATA();
+      d.cbSize = Marshal.SizeOf(typeof(APPBARDATA));
+      uint state = (uint)SHAppBarMessage(ABM_GETSTATE, ref d);
+      return (state & ABS_AUTOHIDE) != 0;
     }
 
     public static string Rect(string cls) {
@@ -157,10 +165,12 @@ if ($Undo) {
 
   Write-Host 'Restoring the Windows taskbar...'
   if (-not $DryRun) {
-    [Aurora.Shell]::SetAutoHide($false)
+    $wasAutoHide = $snap.autoHide
+    if ($null -eq $wasAutoHide) { $wasAutoHide = $false }
+    if ($snap.taskbarSettings) { Set-TaskbarSetting $snap.taskbarSettings }
+    [Aurora.Shell]::SetAutoHide([bool]$wasAutoHide)
     [Aurora.Shell]::Hide('Shell_TrayWnd', $false)
     [Aurora.Shell]::Hide('Shell_SecondaryTrayWnd', $false)
-    if ($snap.taskbarSettings) { Set-TaskbarSetting $snap.taskbarSettings }
   }
 
   if (-not $DryRun) { Stop-Seelen | Out-Null }
@@ -200,6 +210,7 @@ if ($Undo) {
 $snapshot = [ordered]@{
   createdAt       = (Get-Date).ToString('o')
   taskbarSettings = (Get-TaskbarSetting)
+  autoHide        = [Aurora.Shell]::AutoHide()
   taskbarRect     = [Aurora.Shell]::Rect('Shell_TrayWnd')
   seelen          = [ordered]@{
     '@seelen/weg'           = $seelen.byWidget.'@seelen/weg'
@@ -261,7 +272,11 @@ if (-not $DryRun) {
 
 $setting = Get-TaskbarSetting
 Write-Host ("Taskbar after:  {0}" -f [Aurora.Shell]::Rect('Shell_TrayWnd'))
-Write-Host ("Auto-hide flag: {0}" -f ($(if ($setting) { 'written' } else { 'unavailable' })))
+if ($DryRun) {
+  Write-Host 'Auto-hide flag: not touched (dry run)'
+} else {
+  Write-Host ("Auto-hide flag: {0}" -f ($(if ($setting) { 'written' } else { 'unavailable' })))
+}
 
 if ($changed -and -not $NoRestart -and -not $DryRun) {
   Write-Host 'Restarting Seelen UI to apply the layout...'
@@ -269,13 +284,22 @@ if ($changed -and -not $NoRestart -and -not $DryRun) {
 }
 
 Write-Host ''
-Write-Host 'Shell mode is on.' -ForegroundColor Green
-Write-Host '  top edge    -> Aurora top bar'
-Write-Host '  bottom edge -> Aurora dock'
-if ($Mode -eq 'auto') {
-  Write-Host '  Windows taskbar auto-hides; hover the screen edge to bring it back.'
+if ($DryRun) {
+  Write-Host 'Dry run: nothing was changed.' -ForegroundColor Yellow
+  if ($Mode -eq 'auto') {
+    Write-Host '  would auto-hide the Windows taskbar'
+  } else {
+    Write-Host '  would hide the Windows taskbar for this session'
+  }
 } else {
-  Write-Host '  Windows taskbar is hidden for this session (returns after a reboot).'
+  Write-Host 'Shell mode is on.' -ForegroundColor Green
+  Write-Host '  top edge    -> Aurora top bar'
+  Write-Host '  bottom edge -> Aurora dock'
+  if ($Mode -eq 'auto') {
+    Write-Host '  Windows taskbar auto-hides; hover the screen edge to bring it back.'
+  } else {
+    Write-Host '  Windows taskbar is hidden for this session (returns after a reboot).'
+  }
+  Write-Host ''
+  Write-Host 'Undo: powershell -ExecutionPolicy Bypass -File scripts\shell-mode.ps1 -Undo'
 }
-Write-Host ''
-Write-Host 'Undo: powershell -ExecutionPolicy Bypass -File scripts\shell-mode.ps1 -Undo'
