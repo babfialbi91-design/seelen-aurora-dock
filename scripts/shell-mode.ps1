@@ -123,6 +123,29 @@ function Set-TaskbarSetting([string]$b64) {
   Set-ItemProperty -LiteralPath $StuckRects -Name Settings -Value $bytes -Type Binary
 }
 
+# Windows 11 ignores ABM_SETSTATE on some builds: the registry value is the
+# source of truth there, but Explorer only re-reads it on restart. Write the
+# bit, ask the shell politely, then restart Explorer only if it did not take.
+function Set-AutoHide([bool]$on) {
+  try {
+    $bytes = (Get-ItemProperty -LiteralPath $StuckRects -Name Settings -ErrorAction Stop).Settings
+    if ($on) { $bytes[8] = $bytes[8] -bor 0x01 } else { $bytes[8] = $bytes[8] -band 0xFE }
+    Set-ItemProperty -LiteralPath $StuckRects -Name Settings -Value $bytes -Type Binary
+  } catch {
+    Write-Host '  registry value unavailable, using the shell API only.' -ForegroundColor Yellow
+  }
+
+  [Aurora.Shell]::SetAutoHide($on)
+  Start-Sleep -Milliseconds 700
+  if ([Aurora.Shell]::AutoHide() -eq $on) { return }
+
+  Write-Host '  restarting Explorer to apply the taskbar setting...'
+  Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+  Start-Sleep -Seconds 2
+  if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer.exe }
+  Start-Sleep -Seconds 3
+}
+
 function Read-Json([string]$path) {
   if (-not (Test-Path -LiteralPath $path)) { return $null }
   $raw = [IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)
@@ -168,7 +191,7 @@ if ($Undo) {
     $wasAutoHide = $snap.autoHide
     if ($null -eq $wasAutoHide) { $wasAutoHide = $false }
     if ($snap.taskbarSettings) { Set-TaskbarSetting $snap.taskbarSettings }
-    [Aurora.Shell]::SetAutoHide([bool]$wasAutoHide)
+    Set-AutoHide ([bool]$wasAutoHide)
     [Aurora.Shell]::Hide('Shell_TrayWnd', $false)
     [Aurora.Shell]::Hide('Shell_SecondaryTrayWnd', $false)
   }
@@ -262,7 +285,7 @@ if ($changed -and -not $DryRun) {
 Write-Host ("Taskbar before: {0}" -f [Aurora.Shell]::Rect('Shell_TrayWnd'))
 
 if (-not $DryRun) {
-  [Aurora.Shell]::SetAutoHide($true)
+  Set-AutoHide $true
   if ($Mode -eq 'hide') {
     [Aurora.Shell]::Hide('Shell_TrayWnd', $true)
     [Aurora.Shell]::Hide('Shell_SecondaryTrayWnd', $true)
