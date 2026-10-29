@@ -53,6 +53,14 @@
 ![Alt+Tab](docs/screenshots/task-switcher.png)
 ![Workspaces](docs/screenshots/workspaces.png)
 
+## على الجهاز
+
+لقطات حقيقية من الشاشة، بلا نماذج ولا تركيب.
+
+| الشاشة الأساسية (1920×1200) | الشاشة الثانية (1024×1280) |
+| --- | --- |
+| ![](docs/screenshots/desktop-primary.png) | ![](docs/screenshots/desktop-secondary.png) |
+
 ## الدمج مع شريط ويندوز
 
 Seelen 2.8 لا يملك موديول taskbar خاصاً به، فـ«الدمج» يعني أن يتولّى الدوك الحافة السفلية
